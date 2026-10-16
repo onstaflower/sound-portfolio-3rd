@@ -1,0 +1,6 @@
+name = "2633sound"
+compatibility_date = "2026-10-01"
+
+# 정적 파일은 public/ 폴더에서 서빙 (배포용 index.html 위치)
+[assets]
+directory = "./public"
