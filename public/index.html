@@ -1,0 +1,2675 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3학년 과학 프로젝트 | 세상을 움직이는 소리 탐정단 포트폴리오</title>
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-light: #EEF2FF;
+      --primary-dark: #3730A3;
+      --accent: #0D9488;
+      --accent-light: #CCFBF1;
+      --warm-bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text-main: #1E293B;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --success: #16A34A;
+      --warning: #D97706;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08);
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background-color: var(--warm-bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+    header {
+      background: linear-gradient(135deg, #4338CA 0%, #0D9488 100%);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-title h1 { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .header-title p { font-size: 0.85rem; opacity: 0.92; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-white { background: white; color: var(--primary-dark); }
+    .btn-white:hover { background: #F1F5F9; transform: translateY(-1px); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-accent:hover { background: #0F766E; }
+    .btn-outline { background: transparent; border: 1px solid white; color: white; }
+    .btn-outline:hover { background: rgba(255,255,255,0.15); }
+    .btn-danger { background: #EF4444; color: white; }
+    .btn-danger:hover { background: #DC2626; }
+    .btn-sm { padding: 5px 12px; font-size: 0.82rem; }
+    .btn-tts { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+    .btn-tts:hover { background: #FDE68A; }
+    .container { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    .student-bar {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .student-inputs { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .input-group { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 700; color: #334155; }
+    select, input[type="text"], input[type="password"] {
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      background: #F8FAFC;
+    }
+    select:focus, input:focus { outline: none; border-color: var(--primary); background: white; }
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      border: none;
+      background: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab-btn.active { color: var(--primary); background: white; border-bottom: 3px solid var(--primary); font-weight: 800; }
+    .tab-btn:hover:not(.active) { color: var(--text-main); background: rgba(238, 242, 255, 0.5); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title { font-size: 1.15rem; font-weight: 800; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; }
+    .lesson-selector { display: flex; gap: 6px; overflow-x: auto; padding: 8px 4px; margin-bottom: 16px; }
+    .lesson-chip {
+      padding: 7px 13px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .lesson-chip.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: 700; }
+    .lesson-chip.filled::after {
+      content: '●';
+      font-size: 9px;
+      color: #16A34A;
+      position: absolute;
+      top: 3px;
+      right: 7px;
+    }
+    .lesson-detail-box {
+      background: #F8FAFC;
+      border-left: 4px solid var(--accent);
+      padding: 16px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-bottom: 16px;
+    }
+    .lesson-meta { display: flex; gap: 12px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .lesson-question { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
+    .assist-box {
+      background: #FEF3C7;
+      border: 1px solid #FCD34D;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+    .quick-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .quick-tag {
+      background: white;
+      border: 1px solid #CBD5E1;
+      padding: 5px 11px;
+      border-radius: 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      color: #334155;
+      transition: all 0.15s;
+    }
+    .quick-tag:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; color: #334155; }
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      background: #F8FAFC;
+    }
+    textarea:focus { outline: none; border-color: var(--primary); background: white; }
+    
+    /* 인터랙티브 마인드맵 스타일 */
+    .mindmap-wrapper {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      background: #F5F3FF;
+      border: 2px dashed #C4B5FD;
+      border-radius: var(--radius);
+      overflow: hidden;
+      touch-action: none;
+    }
+    .mindmap-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      background: white;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+    .mindmap-node {
+      position: absolute;
+      padding: 10px 16px;
+      background: white;
+      border: 2px solid var(--primary);
+      border-radius: 20px;
+      box-shadow: var(--shadow-md);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: move;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: box-shadow 0.2s;
+    }
+    .mindmap-node:hover { box-shadow: 0 6px 12px rgba(0,0,0,0.12); }
+    .mindmap-node.root { background: var(--primary); color: white; font-size: 1.15rem; border: 3px solid #312E81; padding: 14px 24px; }
+    .mindmap-node.category { background: #CCFBF1; border-color: #0D9488; color: #115E59; }
+    .mindmap-node.item { background: #FEF3C7; border-color: #D97706; color: #78350F; font-weight: 600; }
+    .node-delete-btn {
+      width: 18px;
+      height: 18px;
+      line-height: 16px;
+      border-radius: 50%;
+      background: #EF4444;
+      color: white;
+      border: none;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 6px;
+      opacity: 0.75;
+      flex-shrink: 0;
+    }
+    .node-branch-btn {
+      width: 20px;
+      height: 20px;
+      line-height: 18px;
+      border-radius: 50%;
+      background: #16A34A;
+      color: white;
+      border: none;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+      opacity: 0.85;
+      flex-shrink: 0;
+    }
+    .node-branch-btn:hover { background: #15803D; transform: scale(1.15); opacity: 1; }
+    .node-delete-btn:hover { background: #DC2626; transform: scale(1.15); opacity: 1; }
+
+    /* 대본 및 DIY 카드 스타일 */
+    .script-card {
+      background: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      border-radius: var(--radius);
+      padding: 16px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .script-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .script-card.selected { border-color: var(--primary); background: #EEF2FF; }
+
+    .diy-card {
+      background: #FFFFFF;
+      border: 2px solid #BBF7D0;
+      border-radius: var(--radius);
+      padding: 16px;
+      transition: all 0.2s;
+    }
+    .diy-card:hover { border-color: #16A34A; box-shadow: var(--shadow-sm); }
+
+    .upload-zone {
+      border: 2px dashed #CBD5E1;
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      background: #F8FAFC;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .upload-zone:hover { border-color: var(--primary); background: var(--primary-light); }
+
+    /* 녹음기 박스 */
+    .recorder-box {
+      background: #F1F5F9;
+      border: 2px solid #CBD5E1;
+      border-radius: var(--radius);
+      padding: 18px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .recorder-status {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 10px 0;
+      color: #334155;
+    }
+    .recorder-status.recording { color: #EF4444; animation: blink 1s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* 느린학습자 쉬운모드 */
+    .chip {
+      padding: 8px 16px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .chip.active { background: #16A34A; color: white; border-color: #16A34A; }
+
+    /* 교사용 대시보드 */
+    .teacher-login { max-width: 400px; margin: 40px auto; text-align: center; }
+    .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 16px; }
+    .student-badge-btn {
+      padding: 10px 8px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .student-badge-btn:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+    .student-badge-btn.active-writing { background: #F0FDF4; border-color: #86EFAC; }
+    .student-badge-btn.completed { background: #EEF2FF; border-color: #818CF8; }
+    .student-badge-btn .num { font-size: 0.75rem; color: var(--text-muted); }
+    .student-badge-btn .name { font-weight: 700; font-size: 0.95rem; }
+    .student-badge-btn .progress-badge { font-size: 0.7rem; color: var(--accent); font-weight: 700; margin-top: 4px; }
+    .student-badge-btn .time-badge { font-size: 0.65rem; color: #94A3B8; margin-top: 2px; }
+
+    #loginOverlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: linear-gradient(135deg, #4338CA 0%, #0D9488 100%);
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    #loginOverlay .login-card {
+      background: white; border-radius: 18px; padding: 28px 26px; max-width: 440px; width: 100%;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25); text-align: center;
+    }
+    #loginOverlay .login-card h2 { font-size: 1.3rem; color: #312E81; margin: 8px 0 4px; }
+    #loginOverlay .login-card p { font-size: 0.9rem; color: #475569; margin-bottom: 14px; }
+    #loginOverlay .login-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+    #feedbackBanner {
+      display: none; background: #FFFBEB; border: 2px solid #F59E0B; border-radius: 12px;
+      padding: 14px 16px; margin-bottom: 18px; font-size: 0.92rem;
+    }
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1E293B;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    @media print {
+      header, .header-actions, .student-bar, .nav-tabs, .btn, .assist-box, .mindmap-toolbar, #slowStageChips, #slowStampGroup, .recorder-box { display: none !important; }
+      body { background: white; color: black; padding: 0; }
+      .container { max-width: 100%; margin: 0; padding: 0; }
+      .card { border: 1px solid #ccc; box-shadow: none; page-break-inside: avoid; }
+      #tab-portfolio { display: block !important; }
+      .tab-content { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loginOverlay">
+    <div class="login-card">
+      <div style="font-size:2.4rem;">🔎🦕</div>
+      <h2>소리 탐정단 출석하기</h2>
+      <p>반·번호·이름을 정확히 고르고 [시작하기]를 눌러주세요.<br>다른 친구 번호 그대로 쓰면 기록이 겹쳐 사라질 수 있어요!</p>
+      <div class="login-row">
+        <select id="loginGradeClass" style="padding:9px 12px; font-size:1rem;">
+          <option value="3-1">3학년 1반</option>
+          <option value="3-2">3학년 2반</option>
+          <option value="3-3">3학년 3반</option>
+        </select>
+        <select id="loginNumber" style="padding:9px 12px; font-size:1rem;"></select>
+      </div>
+      <div class="login-row">
+        <input type="text" id="loginName" placeholder="내 이름 입력 (예: 김소리)" style="width:220px; padding:9px 12px; font-size:1rem; text-align:center;">
+      </div>
+      <button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:1.05rem; margin-top:6px;" onclick="confirmLogin()">🔑 내 포트폴리오 시작하기</button>
+      <p id="loginError" style="color:#DC2626; font-weight:700; min-height:22px; margin:8px 0 0;"></p>
+    </div>
+  </div>
+
+  <header>
+    <div class="header-title">
+      <h1>🎵 세상을 움직이는 소리 탐정단 & 사운드 디자이너</h1>
+      <p>초등학교 3학년 2학기 과학 3단원 소리의 성질 프로젝트 학습</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline btn-sm" onclick="switchTab('tab-slow')" style="background: rgba(255,255,255,0.25); font-weight: 700; border: 1px solid #A7F3D0;">🌱 쉬운 모드</button>
+      <button class="btn btn-white btn-sm" id="btnHeaderSave" onclick="saveCurrentData(true)">💾 지금 저장 (클라우드 전송)</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleTeacherView()">👩‍🏫 선생님 전용</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="student-bar" id="studentBar">
+      <div class="student-inputs">
+        <div class="input-group">
+          <span>학급:</span>
+          <select id="selGradeClass" onchange="onStudentChange()">
+            <option value="3-1">3학년 1반</option>
+            <option value="3-2">3학년 2반</option>
+            <option value="3-3">3학년 3반</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <span>번호:</span>
+          <select id="selNumber" onchange="onStudentChange()"></select>
+        </div>
+        <div class="input-group">
+          <span>이름:</span>
+          <input type="text" id="inputName" placeholder="이름 입력" style="width: 110px;" onchange="onStudentChange()">
+        </div>
+        <span id="loginLockBadge" style="font-size:0.85rem; font-weight:800; color:#3730A3; background:#EEF2FF; border:1px solid #C7D2FE; padding:5px 12px; border-radius:16px;">🔓 로그인 전</span>
+        <button type="button" class="btn btn-sm" id="btnChangeIdentity" onclick="requestIdentityChange()" style="background:#F1F5F9; color:#334155; border:1px solid #CBD5E1; font-weight:700; border-radius:20px; padding:6px 14px; cursor:pointer;">🔄 반·번호·이름 바꾸기</button>
+        <button type="button" class="btn btn-sm" onclick="switchTab('tab-slow')" style="background: #ECFDF5; color: #065F46; border: 2px solid #6EE7B7; font-weight: 700; border-radius: 20px; padding: 6px 14px; cursor: pointer;">
+          🌱 [쉬운 모드] 배움터 열기
+        </button>
+      </div>
+      <div>
+        <span id="saveStatusBadge" style="font-size: 0.85rem; color: var(--success); font-weight: 600;">☁️ 실시간 클라우드 연동 준비 완료</span>
+      </div>
+    </div>
+
+    <div class="nav-tabs" id="studentTabs">
+      <button class="tab-btn active" onclick="switchTab('tab-lessons')">📑 1~14차시 탐구 워크북</button>
+      <button class="tab-btn" id="tabBtnSlow" onclick="switchTab('tab-slow')" style="color: #166534; font-weight: 800; background: #DCFCE7; border-radius: 8px 8px 0 0; border: 1px solid #BBF7D0; border-bottom: none;">
+        🌱 쉬운 모드 (그림·따라쓰기)
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-mindmap')">🧠 소리 생각 그물 (마인드맵)</button>
+      <button class="tab-btn" onclick="switchTab('tab-project')">🎨 사운드 디자이너 (대본·녹음·제작)</button>
+      <button class="tab-btn" onclick="switchTab('tab-reflection')">✍️ 단원 마무리 글쓰기</button>
+      <button class="tab-btn" onclick="switchTab('tab-portfolio')">📖 내 포트폴리오 모아보기</button>
+    </div>
+
+    <!-- [TAB 1] 1~14차시 탐구 워크북 -->
+    <div id="tab-lessons" class="tab-content active">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📅 차시별 탐구 기록 & 학습지 (누적 작성)</div>
+          <button class="btn btn-tts btn-sm" onclick="speakCurrentLesson()">🔊 질문 읽어주기</button>
+        </div>
+        <div class="lesson-selector" id="lessonChips"></div>
+        <div class="lesson-detail-box">
+          <div class="lesson-meta">
+            <span id="lessonStepBadge">1차시 (도입)</span>
+            <span id="lessonPages">과학 64~65쪽</span>
+          </div>
+          <div class="lesson-question" id="lessonQuestion">소리 탐정놀이를 해 볼까?</div>
+          <div style="font-size: 0.88rem; color: #475569;" id="lessonActivity">① 소리 듣고 물체 맞히기 ② KWL 생각 열기 차트 작성</div>
+        </div>
+        
+        <!-- 스캐폴딩 칩 지원 상자 -->
+        <div class="assist-box">
+          <div>
+            <strong>💡 쉬운 단어 & 핵심 관찰 칩:</strong>
+            <span style="font-size: 0.82rem; color: #92400E; margin-left: 6px;">클릭하면 관찰 칸에 문장이 쏙 들어갑니다!</span>
+            <div class="quick-tags" id="lessonQuickTags"></div>
+          </div>
+        </div>
+
+        <!-- [1차시 전용 KWL 생각 열기 서식] -->
+        <div id="kwlFormArea" style="display: none;">
+          <div style="background: #EEF2FF; border: 2px solid #C7D2FE; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+            <label class="form-label" style="color: #3730A3; font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+              💭 [K : 이미 알고 있는 사실] 내가 이미 알고 있는 소리 이야기
+            </label>
+            <p style="font-size: 0.88rem; color: #475569; margin-bottom: 8px;">
+              우리 주변에서 소리에 대해 이미 알고 있는 사실이나 일상 경험을 자유롭게 적어보세요.
+            </p>
+            <textarea id="lessonKwlK" rows="3" placeholder="예: 악기를 연주하면 소리가 난다. 멀리 있는 소리는 작게 들린다. 손뼉을 치면 짝 소리가 난다."></textarea>
+          </div>
+
+          <div style="background: #FEF3C7; border: 2px solid #FDE68A; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+            <label class="form-label" style="color: #92400E; font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+              ❓ [W : 알고 싶은 내용] 이번 단원에서 더 알아보고 싶은 호기심 질문
+            </label>
+            <p style="font-size: 0.88rem; color: #92400E; margin-bottom: 8px;">
+              소리에 대해 궁금한 점이나 이번 과학 시간에 직접 실험해보고 싶은 것을 질문으로 적어보세요.
+            </p>
+            <textarea id="lessonKwlW" rows="3" placeholder="예: 소리는 어떻게 생겨나는 걸까? 물속에서도 소리가 잘 들릴까? 어떻게 하면 실감 나는 효과음을 만들 수 있을까?"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 700;">🚀 3단원 소리 탐정 프로젝트를 시작하는 나의 다짐과 소감</label>
+            <textarea id="lessonKwlThought" rows="2" placeholder="이번 소리 탐구 프로젝트를 시작하며 나의 각오나 첫 느낌을 적어보세요."></textarea>
+          </div>
+        </div>
+
+        <!-- [2~14차시 표준 실험/관찰 입력 서식] -->
+        <div id="standardFormArea">
+          <div class="form-group">
+            <label class="form-label">🔍 이번 시간에 관찰하고 알게 된 점 (실험 결과 & 관찰)</label>
+            <textarea id="lessonObservation" placeholder="실험에서 관찰한 것과 알게 된 사실을 적어보세요. (위의 도움말 칩을 누르면 쉽게 문장을 완성할 수 있어요!)"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">🏠 우리 생활 속에서 찾은 사례 (학교, 집, 길거리)</label>
+            <textarea id="lessonLifeExample" placeholder="오늘 배운 소리의 성질이 우리 주변 어디에서 나타나고 있나요?"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">⭐ 오늘 탐구하며 느낀 점 / 새로 생긴 호기심</label>
+            <textarea id="lessonThought" placeholder="오늘 가장 신기했던 점이나 더 알아보고 싶은 것은 무엇인가요?"></textarea>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button class="btn btn-primary" onclick="saveCurrentLessonData()">💾 현재 차시 저장 (클라우드 자동 반영)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- [TAB 2: SLOW] 🌱 쉬운 모드 (느린학습자용 그림 & 따라쓰기 배움터) -->
+    <div id="tab-slow" class="tab-content">
+      <div style="background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border: 2px solid #6EE7B7; border-radius: 16px; padding: 18px 24px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-size: 1.35rem; color: #065F46; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            🌱 천천히 배우는 소리 탐구방 (쉬운 모드)
+          </h2>
+          <p style="font-size: 0.95rem; color: #047857;">
+            그림을 보고 콕 집어 고르고, 아래 핵심 문장을 천천히 따라 써 보세요. 🔊 소리 듣기도 가능해요!
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-sm" onclick="speakText('천천히 배우는 소리 탐구방입니다. 그림을 콕 눌러 고르고 핵심 문장을 따라 써 보세요.')" style="background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; font-weight: 700;">
+            🔊 전체 안내 듣기
+          </button>
+        </div>
+      </div>
+
+      <!-- 7개 단계 선택 칩 -->
+      <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px;" id="slowStageChips">
+        <button type="button" class="chip active" id="slowChip1" onclick="selectSlowStage(1)">🔔 1단계: 소리의 떨림 (2차시)</button>
+        <button type="button" class="chip" id="slowChip2" onclick="selectSlowStage(2)">📢 2단계: 큰 소리 작은 소리 (3차시)</button>
+        <button type="button" class="chip" id="slowChip3" onclick="selectSlowStage(3)">🎼 3단계: 높은 소리 낮은 소리 (4차시)</button>
+        <button type="button" class="chip" id="slowChip4" onclick="selectSlowStage(4)">🌊 4단계: 소리의 전달 (6~7차시)</button>
+        <button type="button" class="chip" id="slowChip5" onclick="selectSlowStage(5)">🤫 5단계: 소음 줄이기 (9차시)</button>
+        <button type="button" class="chip" id="slowChip6" onclick="selectSlowStage(6)">🌧️ 6단계: 초간단 소리 만들기 (10~11차시)</button>
+        <button type="button" class="chip" id="slowChip7" onclick="selectSlowStage(7)">🌟 7단계: 칭찬 마무리 (13~14차시)</button>
+      </div>
+
+      <div class="card" style="border: 2px solid #A7F3D0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px dashed #E2E8F0;">
+          <h3 id="slowStageTitle" style="color: #065F46; font-size: 1.25rem;">🔔 1단계: 소리의 떨림 (2차시)</h3>
+          <button class="btn btn-sm" onclick="speakCurrentSlowStage()" style="background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; font-weight: 700;">
+            🔊 문제 듣기
+          </button>
+        </div>
+
+        <div id="slowQuestionPrompt" style="font-size: 1.15rem; font-weight: 700; color: #1E293B; margin-bottom: 16px;">
+          질문 로딩 중...
+        </div>
+
+        <!-- 그림/객관식 선택 영역 -->
+        <div id="slowChoiceGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px;"></div>
+
+        <!-- ★ 핵심 문장 따라쓰기 영역 -->
+        <div style="background: #FFFBEB; border: 2px solid #FDE68A; border-radius: 14px; padding: 20px; margin: 20px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 1.1rem; font-weight: 800; color: #B45309;">✏️ [핵심 문장 따라쓰기]</span>
+            <button class="btn btn-sm" onclick="speakSlowTraceGuide()" style="background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; font-size: 0.8rem; padding: 4px 10px; font-weight: 700;">
+              🔊 문장 듣기
+            </button>
+          </div>
+          <p style="font-size: 0.9rem; color: #78350F; margin-bottom: 10px;">연한 가이드 글씨를 보면서 아래 칸에 천천히 똑같이 적어보세요:</p>
+          
+          <div id="slowTraceGuide" style="font-size: 1.2rem; font-weight: 800; color: #94A3B8; letter-spacing: 2px; margin-bottom: 12px; background: white; padding: 14px; border-radius: 8px; border: 2px dashed #CBD5E1;">
+            소리가 나는 물체에는 떨림이 있습니다.
+          </div>
+
+          <input type="text" id="slowTraceInput" placeholder="위 문장을 보고 똑같이 따라 적어보세요." oninput="checkSlowTraceMatch()" style="font-size: 1.2rem; font-weight: 700; color: #4338CA; letter-spacing: 2px; padding: 14px 16px; border: 2px solid #818CF8; border-radius: 10px; width: 100%; background: white;">
+          <div id="slowMatchFeedback" style="font-size: 0.95rem; font-weight: 700; margin-top: 8px; min-height: 24px;"></div>
+        </div>
+
+        <!-- 칭찬 도장 찍기 -->
+        <div style="text-align: center; margin: 20px 0;">
+          <p style="font-size: 0.95rem; font-weight: 700; color: #334155; margin-bottom: 10px;">오늘 배운 내 모습에 칭찬 도장을 쾅! 찍어주세요:</p>
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;" id="slowStampGroup">
+            <button type="button" class="btn btn-white btn-sm" onclick="selectStamp('🌟 최고예요!')" style="font-size: 0.95rem; padding: 8px 16px; border-radius: 20px;">🌟 최고예요!</button>
+            <button type="button" class="btn btn-white btn-sm" onclick="selectStamp('😊 참 잘했어요!')" style="font-size: 0.95rem; padding: 8px 16px; border-radius: 20px;">😊 참 잘했어요!</button>
+            <button type="button" class="btn btn-white btn-sm" onclick="selectStamp('👍 힘냈어요!')" style="font-size: 0.95rem; padding: 8px 16px; border-radius: 20px;">👍 힘냈어요!</button>
+          </div>
+        </div>
+
+        <!-- 저장 버튼 -->
+        <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <button class="btn btn-accent btn-lg" onclick="saveSlowLearnerData(true)" style="background: #059669; font-size: 1.05rem; padding: 12px 24px; color: white;">
+            🌱 이 단계 저장하기 (선생님께 보내기)
+          </button>
+          <span style="font-size: 0.9rem; color: #047857; font-weight: 600;">
+            ☁️ 저장 버튼을 누르면 선생님 대시보드로 바로 전달됩니다.
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- [TAB 3] 소리 생각 그물 (마인드맵) -->
+    <div id="tab-mindmap" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🧠 소리 생각 그물 (인터랙티브 마인드맵)</div>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">동그라미를 드래그해서 움직이고, 새 생각을 더해보세요!</span>
+        </div>
+        <div class="mindmap-toolbar">
+          <div style="display: flex; align-items: center; gap: 6px; background: white; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);">
+            <span style="font-size: 0.85rem; font-weight: 700; color: #334155;">🌿 연결할 노드:</span>
+            <select id="mindNodeParentSelect" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #CBD5E1; font-size: 0.85rem; max-width: 180px; font-weight: 600;">
+              <option value="root">🔔 소리의 성질 (중심)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addMindNode()">➕ 가지(노드) 추가</button>
+          <button class="btn btn-accent btn-sm" onclick="resetDefaultMindMap()">🔄 중심 노드만 남기기</button>
+          <button class="btn btn-tts btn-sm" onclick="speakMindmapSummary()">🔊 설명 듣기</button>
+          <span style="font-size: 0.8rem; color: #475569; margin-left: auto;">
+            💡 노드의 <strong>[➕]</strong>를 누르면 그 자리에서 바로 새 가지를 뻗을 수 있어요!
+          </span>
+        </div>
+        <div class="mindmap-wrapper" id="mindmapCanvas">
+          <svg id="mindmapSvg" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></svg>
+        </div>
+        <div style="margin-top: 14px; font-size: 0.85rem; color: #475569;">
+          📌 <strong>마인드맵 팁:</strong> 3단원에서 배운 핵심 내용(소리의 발생/떨림, 소리의 세기, 소리의 높낮이, 소리의 전달, 소음 줄이기)이 모두 연결되어 있는지 확인해 보세요!
+        </div>
+      </div>
+    </div>
+
+    <!-- [TAB 4] 사운드 디자이너 (대본·녹음·제작) -->
+    <div id="tab-project" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎨 사운드 디자이너 스튜디오 (효과음 & 나만의 악기)</div>
+        </div>
+        <p style="font-size: 0.92rem; margin-bottom: 20px; color: var(--text-muted);">
+          소리의 성질(떨림, 세기, 높낮이, 전달)을 활용해 생활 속 재료로 소리를 디자인해 보세요! 아래 대본을 보고 효과음을 맞추거나 나만의 악기를 만들어 녹음할 수 있어요.
+        </p>
+
+        <!-- 📖 섹션 1: 소리 동화 대본 3편 -->
+        <h3 style="font-size: 1.05rem; margin-bottom: 12px; color: var(--primary);">🎬 [동화·연극 장면 대본 3선] 모둠에서 표현할 장면을 골라보세요!</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 14px; margin-bottom: 24px;">
+          <div class="script-card" id="scriptCard1" onclick="selectScript(1)">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="color: #1D4ED8; font-size: 1rem;">🌧️ 장면 1: 비 오는 숲속 모험</strong>
+              <span class="btn btn-sm btn-white" style="border: 1px solid #CBD5E1; font-size: 0.75rem;">선택하기</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #334155; line-height: 1.7;">
+              ① 숲속에 솔솔 시원한 바람이 불어옵니다. (바람 소리 🍃)<br>
+              ② 하늘이 어두워지더니 빗방울이 후두둑 떨어집니다. (빗소리 🌧️)<br>
+              ③ 갑자기 우르릉 쾅쾅! 큰 소리가 울려 퍼집니다. (천둥소리 ⚡)<br>
+              ④ 비가 그치고 풀잎에 빗방울이 또르르 굴러갑니다. (물방울 소리 💧)
+            </p>
+          </div>
+
+          <div class="script-card" id="scriptCard2" onclick="selectScript(2)">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="color: #7C3AED; font-size: 1rem;">🕵️ 장면 2: 쿵쾅쿵쾅 밤의 탐정</strong>
+              <span class="btn btn-sm btn-white" style="border: 1px solid #CBD5E1; font-size: 0.75rem;">선택하기</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #334155; line-height: 1.7;">
+              ① 밤이 되자 탐정은 살금살금 복도를 걷습니다. (작은 발소리 🧦)<br>
+              ② 낡은 방 문이 끼이익 천천히 열립니다. (문 삐걱 소리 🚪)<br>
+              ③ 창밖에서 다가닥다가닥 말이 힘차게 달립니다. (말발굽 소리 🐎)<br>
+              ④ 마침내 보물을 찾은 탐정이 야호 환호합니다! (환호성 소리 👑)
+            </p>
+          </div>
+
+          <div class="script-card" id="scriptCard3" onclick="selectScript(3)">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="color: #059669; font-size: 1rem;">🏃 장면 3: 동물 숲속 운동회</strong>
+              <span class="btn btn-sm btn-white" style="border: 1px solid #CBD5E1; font-size: 0.75rem;">선택하기</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #334155; line-height: 1.7;">
+              ① 삑삑! 출발을 알리는 호루라기가 맑게 울립니다. (높은 호루라기 🎺)<br>
+              ② 쿵쾅쿵쾅! 동물 친구들이 흙먼지를 날리며 달립니다. (발구름 소리 🐾)<br>
+              ③ 결승선에 다가오자 헉헉 거친 숨을 내쉽니다. (빠른 숨소리 💨)<br>
+              ④ 짝짝짝! 숲속 친구들의 우렁찬 함성과 박수가 터집니다. (박수 소리 👏)
+            </p>
+          </div>
+        </div>
+
+        <!-- 💡 섹션 2: 느린학습자용 최소 준비물 초간단 DIY 설계도 4종 -->
+        <h3 style="font-size: 1.05rem; margin-bottom: 12px; color: #047857;">🌱 [최소 준비물 초간단 DIY 설계도] 누구나 쉽게 따라 만들 수 있어요!</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 24px;">
+          <div class="diy-card">
+            <h4 style="color: #065F46; font-size: 0.95rem; margin-bottom: 6px;">🌧️ 1. 찰랑찰랑 빗소리 쉐이커</h4>
+            <p style="font-size: 0.82rem; color: #334155;"><strong>준비물:</strong> 종이컵 1개, 쌀 2숟가락, 테이프</p>
+            <p style="font-size: 0.82rem; color: #64748B; margin-top: 4px;"><strong>만드는 법:</strong> 종이컵에 쌀을 넣고 입구를 납작하게 눌러 테이프로 막아요. 살살 기울이면 가랑비, 흔들면 소나기!</p>
+            <button class="btn btn-sm btn-white" style="margin-top: 8px; border: 1px solid #86EFAC; color: #065F46;" onclick="applyDiyToProject('찰랑찰랑 빗소리 쉐이커 (종이컵+쌀)')">이걸로 만들기</button>
+          </div>
+
+          <div class="diy-card">
+            <h4 style="color: #065F46; font-size: 0.95rem; margin-bottom: 6px;">🐎 2. 다가닥 말발굽 컵</h4>
+            <p style="font-size: 0.82rem; color: #334155;"><strong>준비물:</strong> 종이컵 2개 (끝!)</p>
+            <p style="font-size: 0.82rem; color: #64748B; margin-top: 4px;"><strong>만드는 법:</strong> 종이컵 2개를 엎어서 책상 위에 번갈아 탁! 탁! 두드려요. 속도와 세기를 조절해 달리는 말을 표현해요.</p>
+            <button class="btn btn-sm btn-white" style="margin-top: 8px; border: 1px solid #86EFAC; color: #065F46;" onclick="applyDiyToProject('다가닥 말발굽 컵 (종이컵 2개)')">이걸로 만들기</button>
+          </div>
+
+          <div class="diy-card">
+            <h4 style="color: #065F46; font-size: 0.95rem; margin-bottom: 6px;">🎶 3. 딩동댕 고무줄 거문고</h4>
+            <p style="font-size: 0.82rem; color: #334155;"><strong>준비물:</strong> 빈 필통(상자) 1개, 노란 고무줄 1~2개</p>
+            <p style="font-size: 0.82rem; color: #64748B; margin-top: 4px;"><strong>만드는 법:</strong> 상자에 고무줄을 걸고 튕겨요. 손가락으로 줄을 짧게 잡을수록 맑고 높은 소리가 나요!</p>
+            <button class="btn btn-sm btn-white" style="margin-top: 8px; border: 1px solid #86EFAC; color: #065F46;" onclick="applyDiyToProject('딩동댕 고무줄 거문고 (필통+고무줄)')">이걸로 만들기</button>
+          </div>
+
+          <div class="diy-card">
+            <h4 style="color: #065F46; font-size: 0.95rem; margin-bottom: 6px;">🐦 4. 삐약삐약 빨대 피리</h4>
+            <p style="font-size: 0.82rem; color: #334155;"><strong>준비물:</strong> 음료수 빨대 1개, 가위</p>
+            <p style="font-size: 0.82rem; color: #64748B; margin-top: 4px;"><strong>만드는 법:</strong> 빨대 끝을 삼각형 모양으로 비스듬히 자른 뒤 입술로 살짝 물고 불어요. 빨대를 자르면 더 높은 소리가 나요!</p>
+            <button class="btn btn-sm btn-white" style="margin-top: 8px; border: 1px solid #86EFAC; color: #065F46;" onclick="applyDiyToProject('삐약삐약 빨대 피리 (빨대+가위)')">이걸로 만들기</button>
+          </div>
+        </div>
+
+        <!-- 🎙️ 섹션 3: 소리 직접 녹음기 & 작품 등록 -->
+        <div class="card" style="background: #F8FAFC; border: 1px solid #CBD5E1;">
+          <h4 style="margin-bottom: 12px; color: var(--primary-dark);">🎙️ 내가 만든 소리를 웹앱에서 바로 녹음하기</h4>
+          
+          <div class="recorder-box">
+            <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 12px;">크롬북/태블릿 마이크로 제작한 효과음이나 악기 소리를 5~10초간 녹음해 보세요!</p>
+            <div style="display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap;">
+              <button class="btn btn-danger" id="btnRecordStart" onclick="startAudioRecording()">🔴 녹음 시작 (최대 10초)</button>
+              <button class="btn btn-white" id="btnRecordStop" onclick="stopAudioRecording()" style="border: 1px solid #CBD5E1;" disabled>⏹️ 녹음 정지</button>
+            </div>
+            <div class="recorder-status" id="recordStatusText">대기 중 (녹음 버튼을 눌러보세요)</div>
+            <div id="audioPlayerArea" style="margin-top: 12px; display: none;">
+              <p style="font-size: 0.85rem; font-weight: 700; color: var(--success); margin-bottom: 6px;">🎧 녹음된 소리 미리듣기:</p>
+              <audio id="recordedAudioElement" controls style="max-width: 100%;"></audio>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">작품 이름 및 선택한 대본/원리 소개</label>
+            <input type="text" id="projectLinkInput" placeholder="예: 장면 1 빗소리 연출 / 종이컵 빗소리 쉐이커" style="width: 100%;" onchange="syncToCloud(false)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">작품 사진 파일 업로드 (PNG, JPG)</label>
+            <div class="upload-zone" onclick="document.getElementById('projectFileInput').click()">
+              <input type="file" id="projectFileInput" accept="image/*" style="display:none;" onchange="handleProjectImageUpload(event)">
+              <div style="font-size: 2.2rem;">📸</div>
+              <p style="font-weight: 700; margin-top: 6px; color: #334155;">클릭하여 직접 만든 효과음 장치나 악기 사진을 올려주세요</p>
+            </div>
+          </div>
+          <div id="projectPreviewContainer" style="display:none; margin-top: 16px; text-align: center;">
+            <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; color: var(--success);">업로드된 작품 사진 미리보기:</p>
+            <img id="projectPreviewImg" src="" style="max-width: 100%; max-height: 400px; border-radius: 8px; box-shadow: var(--shadow-md);">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [TAB 5] 단원 마무리 글쓰기 -->
+    <div id="tab-reflection" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">✍️ 단원 마무리 글쓰기 (배운 점 • 중점 설계 • 느낀 점)</div>
+          <button class="btn btn-tts btn-sm" onclick="speakReflectionGuide()">🔊 글쓰기 도움말 듣기</button>
+        </div>
+        <div class="assist-box">
+          <div>
+            <strong>💡 문장 시작 도우미:</strong>
+            <div class="quick-tags">
+              <span class="quick-tag" onclick="appendSentence('refLearn', '소리가 나는 물체에는 떨림이 있다는 것을 배웠습니다. ')">떨림 배움</span>
+              <span class="quick-tag" onclick="appendSentence('refLearn', '세게 칠수록 떨림이 커서 큰 소리가 나고, 약하게 치면 작은 소리가 납니다. ')">세기 원리</span>
+              <span class="quick-tag" onclick="appendSentence('refLearn', '물체가 짧을수록 빠른 떨림으로 높은 소리가 납니다. ')">높낮이 원리</span>
+              <span class="quick-tag" onclick="appendSentence('refLearn', '소리는 공기뿐 아니라 물과 나무 책상 같은 물질을 통해서도 전달됩니다. ')">전달 물질</span>
+              <span class="quick-tag" onclick="appendSentence('refDesign', '소리의 세기와 높낮이 성질을 이용해 실감 나는 소리가 나도록 장치를 설계했습니다. ')">장치 설계</span>
+              <span class="quick-tag" onclick="appendSentence('refFeel', '직접 소리를 만들고 친구들과 함께 탐구해보니 과학이 정말 신기하고 재미있었습니다! ')">재미있는 소감</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">1. 이번 단원에서 새롭게 알게 된 핵심 과학 원리 3가지</label>
+          <textarea id="refLearn" placeholder="소리의 발생(떨림), 소리의 세기, 소리의 높낮이, 소리의 전달(기체/액체/고체) 중 배운 점을 써보세요."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">2. 내가 만든 효과음 장치나 악기에서 가장 중점을 둔 부분과 과학적 원리</label>
+          <textarea id="refDesign" placeholder="어떤 소리를 표현하고 싶었나요? 소리의 어떤 성질(떨림, 세기, 높낮이)이 쓰였나요?"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">3. 14차시 동안 탐구하고 친구들과 협력하며 느낀 점</label>
+          <textarea id="refFeel" placeholder="가장 신기했던 순간, 어려웠지만 해결한 일, 사운드 디자이너 프로젝트 소감을 적어보세요."></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end;">
+          <button class="btn btn-primary" onclick="saveReflectionData()">💾 글쓰기 저장 (클라우드 자동 반영)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- [TAB 6] 내 포트폴리오 모아보기 -->
+    <div id="tab-portfolio" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📖 나의 소리 탐구 포트폴리오 북</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ 포트폴리오 인쇄 / PDF 저장</button>
+            <button class="btn btn-accent btn-sm" onclick="syncToCloud(true)">☁️ 클라우드에 지금 저장하기</button>
+          </div>
+        </div>
+        <div id="feedbackBanner"></div>
+        <div id="portfolioSummaryView" style="padding: 10px 0;"></div>
+      </div>
+    </div>
+
+    <!-- [VIEW] 선생님 대시보드 화면 -->
+    <div id="view-teacher" style="display: none;">
+      <div id="teacherLock" class="card teacher-login">
+        <div style="font-size: 3rem; margin-bottom: 8px;">🔒</div>
+        <h3 style="margin-bottom: 8px;">선생님 전용 관리 페이지</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">선생님 비밀번호를 입력하세요.</p>
+        <div style="display: flex; gap: 8px; justify-content: center;">
+          <input type="password" id="teacherPwInput" placeholder="비밀번호" style="width: 140px;" onkeydown="if(event.key==='Enter') verifyTeacherPw()">
+          <button class="btn btn-primary" onclick="verifyTeacherPw()">확인</button>
+        </div>
+      </div>
+
+      <div id="teacherDashboard" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">👩‍🏫 3학년 소리 프로젝트 실시간 학습 현황 대시보드</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-white btn-sm" style="border: 1px solid var(--border);" onclick="fetchSupabaseAllData()">🔄 클라우드 새로고침</button>
+              <button class="btn btn-accent btn-sm" onclick="exportDataCSV()">📥 전체 학생 CSV 다운로드</button>
+              <button class="btn btn-white btn-sm" style="border: 1px solid var(--border);" onclick="exportDataHTML()">📄 전체 포트폴리오 HTML 다운로드</button>
+              <button class="btn btn-outline btn-sm" style="color: #334155; border-color: #CBD5E1;" onclick="changeTeacherPwPrompt()">🔑 비밀번호 변경</button>
+              <button class="btn btn-tts btn-sm" id="btnToggleTeacherExampleMindmap" onclick="toggleTeacherExampleMindmap()">👁️ 예시 마인드맵 펼치기</button>
+            </div>
+          </div>
+
+          <!-- 교사용 모범 마인드맵 안내 박스 -->
+          <div id="teacherExampleMindmapContainer" style="display:none; background: #F8FAFC; border: 2px dashed #818CF8; border-radius: var(--radius); padding: 16px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <strong style="color: var(--primary); font-size: 1rem;">💡 [교사용 모범 마인드맵 구조 예시]</strong>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">수업 중 학생 지도용 참고 자료</span>
+            </div>
+            <div class="mindmap-wrapper" id="teacherMindmapCanvas" style="height: 420px; background: white;">
+              <svg id="teacherMindmapSvg" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></svg>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <button class="btn btn-sm btn-primary" id="btnFilter31" onclick="filterClass('3-1')">3학년 1반</button>
+            <button class="btn btn-sm btn-white" style="border: 1px solid var(--border);" id="btnFilter32" onclick="filterClass('3-2')">3학년 2반</button>
+            <button class="btn btn-sm btn-white" style="border: 1px solid var(--border);" id="btnFilter33" onclick="filterClass('3-3')">3학년 3반</button>
+          </div>
+          <div style="font-size: 0.9rem; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center;">
+            <span>참여 학생: <strong id="submittedCount" style="color: var(--success);">0</strong>명 / 30명 (실시간 저장 기준)</span>
+            <span id="cloudSyncStatus" style="font-size:0.8rem; color:#64748B;">☁️ 실시간 동기화 활성화</span>
+          </div>
+          <div class="student-grid" id="teacherStudentGrid"></div>
+        </div>
+
+        <div id="teacherStudentDetailModal" class="card" style="display:none; border: 2px solid var(--primary);">
+          <div class="card-header">
+            <div class="card-title" id="modalStudentTitle">학생 포트폴리오 상세</div>
+            <button class="btn btn-sm btn-white" onclick="closeStudentDetail()">닫기 ✖</button>
+          </div>
+          <div id="modalStudentBody"></div>
+          <div style="margin-top:14px; background:#FFFBEB; border:2px solid #F59E0B; border-radius:10px; padding:12px;">
+            <label class="form-label" style="color:#92400E;">💬 선생님 피드백 (학생에게 바로 전달됩니다)</label>
+            <textarea id="teacherFeedbackInput" rows="3" placeholder="칭찬과 다음 탐구 조언을 적어주세요. 저장하면 학생 포트폴리오 맨 위에 바로 보입니다." style="background:white;"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px; align-items:center;">
+              <span id="teacherFeedbackSavedAt" style="font-size:0.78rem; color:#92400E;"></span>
+              <button class="btn btn-primary btn-sm" onclick="saveTeacherFeedback()">📩 피드백 저장·전달</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast">알림 메시지</div>
+
+  <script>
+    // ==========================================
+    // 🌐 Supabase 클라우드 설정
+    // ==========================================
+    const SUPABASE_URL = "https://ouvfoiokkbejgcggdvma.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_ahZJ8TgTkzLrvYtEkQXsVQ_21WU2qJM";
+    let sbClient = null;
+
+    if (window.supabase) {
+      try {
+        sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch (err) {
+        console.error("Failed to initialize Supabase client:", err);
+      }
+    }
+
+    // ==========================================
+    // 📚 3학년 2학기 3단원 소리의 성질 1~14차시 데이터 (스캐폴딩 강화)
+    // ==========================================
+    const LESSONS = [
+      { num: 1, step: '1차시 (도입)', pages: '과학 64~65쪽', q: '소리 탐정놀이를 해 볼까? 우리 주변에는 어떤 소리가 있을까?', act: '소리 듣고 물체 맞히기 놀이, KWL 생각 열기 차트 작성', tags: ['소리 탐정', '자연의 소리', '악기 소리', '귓속말', '호기심'] },
+      { num: 2, step: '2차시 (개념1)', pages: '과학 66~67쪽 / 실관 38~39쪽', q: '소리는 어떻게 나는 걸까? 소리가 나는 물체에는 어떤 비밀이 있을까?', act: '목에 손 대고 "아" 소리 내기, 고무줄 튕기기, 소리굽쇠 치고 물에 대기', tags: ['소리 나는 물체는 떨림이 있다', '목에 손을 대면 떨림이 느껴진다', '소리굽쇠를 대면 물방울이 튄다', '떨림이 멈추면 소리도 멈춘다'] },
+      { num: 3, step: '3차시 (개념2)', pages: '과학 68~69쪽 / 실관 40~41쪽', q: '큰 소리와 작은 소리는 어떻게 다를까?', act: '글로켄슈필 세게/약하게 치기, 고무줄 세게/약하게 튕기기, 소리 측정기(dB) 수치 비교', tags: ['소리의 세기', '세게 칠수록 떨림이 크고 큰 소리가 난다', '약하게 칠수록 떨림이 작고 작은 소리가 난다', '소리 측정기 숫자가 커진다'] },
+      { num: 4, step: '4차시 (개념3)', pages: '과학 70~71쪽 / 실관 42~43쪽', q: '높은 소리와 낮은 소리는 어떻게 다를까?', act: '칼림바 건반 길이 비교, 우쿨렐레 줄 길이 조절 연주, 플라스틱 자 내민 길이별 튕기기', tags: ['소리의 높낮이', '물체가 짧을수록 더 높은 소리가 난다', '물체가 길수록 더 낮은 소리가 난다', '빨리 떨릴수록 높은 소리'] },
+      { num: 5, step: '5차시 (탐구놀이)', pages: '과학 72~73쪽 / 실관 44~45쪽', q: '세기와 높낮이가 다른 소리를 악기로 자유롭게 내 볼까?', act: '악기 카드 + 소리 카드 조합 문장 완성, 점점 크게/작게/높게/낮게 조절 연주', tags: ['악기 카드와 소리 카드', '소리를 점점 크게 연주하기', '소리를 점점 작게 연주하기', '소리를 점점 높게 연주하기', '소리를 점점 낮게 연주하기'] },
+      { num: 6, step: '6차시 (개념4)', pages: '과학 74~75쪽 / 실관 46쪽', q: '소리는 무엇을 통해 전달될까? (기체 상태 물질)', act: '탈지면과 스피커 용기, 공기를 뺄 때 소리의 변화 관찰', tags: ['소리는 물질을 통해 전달된다', '공기와 같은 기체를 통해 소리가 전달된다', '공기를 빼면 소리가 작아진다', '공기가 없는 우주에서는 소리가 안 들린다'] },
+      { num: 7, step: '7차시 (개념5)', pages: '과학 76~77쪽 / 실관 47~49쪽', q: '액체와 고체 상태인 물질을 통해서도 소리가 전달될까?', act: '물속에서 캐스터네츠 부딪치기, 책상에 귀를 대고 두드리기', tags: ['물과 같은 액체 상태에서도 소리가 전달된다', '나무 책상과 같은 고체에서도 소리가 잘 전달된다', '책상에 귀를 대면 소리가 더 선명하게 들린다'] },
+      { num: 8, step: '8차시 (체험)', pages: '과학 78~79쪽', q: '소리의 소중함을 알 수 있는 우리소리박물관을 만나볼까?', act: '우리소리박물관 유물 탐색, 340m 긴 관 소리 전달 체험, 붐웨커 연주 체험', tags: ['우리소리박물관', '340m 긴 관을 통한 소리 전달', '플라스틱 관 길이로 높낮이를 내는 붐웨커', '조상들의 소리 지혜'] },
+      { num: 9, step: '9차시 (적용1)', pages: '과학 80~81쪽 / 실관 50쪽', q: '시끄러운 소음을 줄이려면 어떻게 해야 할까?', act: '소음 경험 나누기, 소음의 정의(불쾌한 소리), 소음 줄이기 실천표 작성', tags: ['소음은 불쾌하거나 해를 끼치는 시끄러운 소리', '바닥에 푹신한 매트를 깐다', '실내에서는 살살 조용히 걸어 다닌다', '문은 살며시 천천히 닫는다'] },
+      { num: 10, step: '10차시 (사운드디자이너-설계)', pages: '과학 82~83쪽 / 실관 51쪽', q: '주변의 재료로 실감 나는 효과음이나 나만의 악기를 어떻게 설계할까?', act: '재료 탐색(쌀, 종이컵, 옷, 빨대 등), 효과음 및 간이 악기 설계도 그리기', tags: ['페트병 빗소리 통', '종이컵 말발굽 소리', '고무줄 거문고', '빨대 팬플루트', '소리의 성질을 이용한 설계'] },
+      { num: 11, step: '11차시 (사운드디자이너-제작·녹음)', pages: '과학 83쪽 / 실관 52쪽', q: '설계한 소리를 직접 만들고 웹앱에 녹음하여 시연 퀴즈쇼를 열어보자!', act: '효과음 및 악기 제작, 웹앱 마이크로 5~10초 소리 녹음, 퀴즈쇼 개최', tags: ['효과음 장치 직접 만들기', '웹앱 마이크 소리 녹음 완료', '다른 모둠이 맞히는 효과음 퀴즈쇼', '친구들의 소리 칭찬하기'] },
+      { num: 12, step: '12차시 (첨단기술)', pages: '과학 84~85쪽', q: '인공지능 자율 주행 자동차는 소리를 어떻게 듣고 판단할까?', act: 'AI 자율주행차의 소리 인식 기술 탐구, 긴급 사이렌(높은 소리) 구별, 미래 소리 기술 상상', tags: ['자율 주행 자동차', '긴급 차량의 높은 사이렌 소리 인식', '사람의 말소리 지시 구별', '안전을 지키는 소리 인공지능'] },
+      { num: 13, step: '13차시 (정리)', pages: '과학 86~87쪽 / 실관 53~54쪽', q: '소리의 성질 생각 그물을 완성하고 배운 점을 글로 정리해 볼까?', act: '디지털 소리 생각 그물 완성, 실관 문제 풀이, 단원 마무리 글쓰기', tags: ['소리의 발생과 떨림', '소리의 세기와 높낮이', '기체·액체·고체를 통한 전달', '사운드 디자이너 성찰 글쓰기'] },
+      { num: 14, step: '14차시 (나눔)', pages: '종합', q: '친구들의 소리 포트폴리오를 감상하고 서로 격려해 보자!', act: '사운드 갤러리 워크, 동료 평가 칭찬 스티커, 포트폴리오 최종 완성 및 인쇄', tags: ['친구들의 녹음 소리 감상', '칭찬과 격려 피드백', '나의 소리 포트폴리오 완성', 'A4 인쇄 및 보관'] }
+    ];
+
+    let currentLessonNum = 1;
+    let currentTeacherFilterClass = '3-1';
+    let cloudStudentData = {};
+    let recordedAudioBase64 = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordTimer = null;
+
+    // 로그인 + XSS/피드백 상태
+    let isLoggedIn = false;
+    let loggedIdentity = { gradeClass: null, num: null, name: '' };
+    let currentModalStudentId = null;
+    let currentModalFeedbackAt = '';
+
+    function escHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // 👩‍🏫 교사용 모범 마인드맵
+    const TEACHER_EXAMPLE_MIND_NODES = [
+      { id: 'root', text: '🔔 소리의 성질', x: 420, y: 220, type: 'root', parentId: null },
+      { id: 'c1', text: '〰️ 소리의 발생 (떨림)', x: 200, y: 110, type: 'category', parentId: 'root' },
+      { id: 'c2', text: '📢 소리의 세기 (크기)', x: 640, y: 110, type: 'category', parentId: 'root' },
+      { id: 'c3', text: '🎼 소리의 높낮이', x: 640, y: 330, type: 'category', parentId: 'root' },
+      { id: 'c4', text: '🌊 소리의 전달', x: 200, y: 330, type: 'category', parentId: 'root' },
+      { id: 'i1', text: '목소리·고무줄·소리굽쇠 떨림', x: 40, y: 50, type: 'item', parentId: 'c1' },
+      { id: 'i2', text: '세게 치면 큰 소리 (떨림 큼)', x: 780, y: 50, type: 'item', parentId: 'c2' },
+      { id: 'i3', text: '짧고 얇을수록 높은 소리 (칼림바)', x: 780, y: 390, type: 'item', parentId: 'c3' },
+      { id: 'i4', text: '기체(공기), 액체(물), 고체(책상)', x: 40, y: 390, type: 'item', parentId: 'c4' }
+    ];
+
+    // 🌱 학생용 초기 백지 마인드맵
+    const STUDENT_DEFAULT_MIND_NODES = [
+      { id: 'root', text: '🔔 소리의 성질', x: 420, y: 220, type: 'root' }
+    ];
+
+    let mindNodes = JSON.parse(JSON.stringify(STUDENT_DEFAULT_MIND_NODES));
+    let draggedNode = null;
+    let dragOffset = { x: 0, y: 0 };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initStudentSelectors();
+      initLoginNumberOptions();
+      initLessonChips();
+      // 로그인 전에는 빈 화면으로 시작 (기본 3-1/1번 데이터 노출 방지)
+      document.getElementById('loginOverlay').style.display = 'flex';
+      updateLockBadge();
+      renderMindMap();
+    });
+
+    function initLoginNumberOptions() {
+      const sel = document.getElementById('loginNumber');
+      if (!sel) return;
+      sel.innerHTML = '';
+      for (let i = 1; i <= 30; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = i + '번';
+        sel.appendChild(opt);
+      }
+    }
+
+    async function confirmLogin() {
+      const gc = document.getElementById('loginGradeClass').value;
+      const num = document.getElementById('loginNumber').value;
+      const name = document.getElementById('loginName').value.trim();
+      const errEl = document.getElementById('loginError');
+      if (!name) {
+        errEl.textContent = '이름을 꼭 입력해 주세요! (예: 김소리)';
+        document.getElementById('loginName').focus();
+        return;
+      }
+      if (name.length < 2) {
+        errEl.textContent = '이름을 2글자 이상 입력해 주세요.';
+        return;
+      }
+      errEl.textContent = '';
+      document.getElementById('selGradeClass').value = gc;
+      document.getElementById('selNumber').value = num;
+      document.getElementById('inputName').value = name;
+      isLoggedIn = true;
+      loggedIdentity = { gradeClass: gc, num: String(num), name: name };
+      document.getElementById('loginOverlay').style.display = 'none';
+      updateLockBadge();
+      await loadStudentData();
+      // 같은 학적에 이미 다른 이름 기록이 있으면 경고
+      showToast(gc + ' ' + num + '번 ' + name + ' 탐정님, 환영합니다!');
+    }
+
+    function updateLockBadge() {
+      const badge = document.getElementById('loginLockBadge');
+      if (!badge) return;
+      if (isLoggedIn) {
+        badge.textContent = '🔓 ' + loggedIdentity.gradeClass + ' ' + loggedIdentity.num + '번 ' + loggedIdentity.name + ' 로그인 중';
+      } else {
+        badge.textContent = '🔓 로그인 전';
+      }
+    }
+
+    function requestIdentityChange() {
+      if (confirm('반·번호·이름을 바꾸면 지금 화면 내용이 바뀝니다.\n저장하지 않은 내용은 사라질 수 있어요.\n바꾸시겠어요?')) {
+        isLoggedIn = false;
+        document.getElementById('loginOverlay').style.display = 'flex';
+        document.getElementById('loginError').textContent = '';
+        updateLockBadge();
+      }
+    }
+
+    function initStudentSelectors() {
+      const selNum = document.getElementById('selNumber');
+      selNum.innerHTML = '';
+      for (let i = 1; i <= 30; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${i}번`;
+        selNum.appendChild(opt);
+      }
+    }
+
+    function initLessonChips() {
+      const container = document.getElementById('lessonChips');
+      container.innerHTML = '';
+      LESSONS.forEach(l => {
+        const chip = document.createElement('div');
+        chip.className = `lesson-chip ${l.num === currentLessonNum ? 'active' : ''}`;
+        chip.id = `chip-lesson-${l.num}`;
+        chip.textContent = `${l.num}차시`;
+        chip.onclick = () => selectLesson(l.num);
+        container.appendChild(chip);
+      });
+      updateLessonView();
+    }
+
+    function updateLessonChipsIndicators(lessonsData) {
+      if (!lessonsData) return;
+      LESSONS.forEach(l => {
+        const chip = document.getElementById(`chip-lesson-${l.num}`);
+        if (chip) {
+          const lItem = lessonsData[l.num];
+          if (lItem && (lItem.observation || lItem.lifeExample || lItem.thought || lItem.kwlK)) {
+            chip.classList.add('filled');
+          } else {
+            chip.classList.remove('filled');
+          }
+        }
+      });
+    }
+
+    function selectLesson(num) {
+      currentLessonNum = num;
+      document.querySelectorAll('.lesson-chip').forEach(c => c.classList.remove('active'));
+      const activeChip = document.getElementById(`chip-lesson-${num}`);
+      if (activeChip) activeChip.classList.add('active');
+      updateLessonView();
+      loadCurrentLessonInputs();
+    }
+
+    function updateLessonView() {
+      const l = LESSONS.find(x => x.num === currentLessonNum);
+      if (!l) return;
+      document.getElementById('lessonStepBadge').textContent = l.step;
+      document.getElementById('lessonPages').textContent = l.pages;
+      document.getElementById('lessonQuestion').textContent = l.q;
+      document.getElementById('lessonActivity').textContent = l.act;
+
+      const kwlArea = document.getElementById('kwlFormArea');
+      const stdArea = document.getElementById('standardFormArea');
+      if (currentLessonNum === 1) {
+        if (kwlArea) kwlArea.style.display = 'block';
+        if (stdArea) stdArea.style.display = 'none';
+      } else {
+        if (kwlArea) kwlArea.style.display = 'none';
+        if (stdArea) stdArea.style.display = 'block';
+      }
+
+      const tagBox = document.getElementById('lessonQuickTags');
+      tagBox.innerHTML = '';
+      l.tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'quick-tag';
+        span.textContent = `+ ${t}`;
+        span.onclick = () => {
+          if (currentLessonNum === 1) {
+            appendSentence('lessonKwlK', t + ' ');
+          } else {
+            appendSentence('lessonObservation', t + ' ');
+          }
+        };
+        tagBox.appendChild(span);
+      });
+    }
+
+    function appendSentence(targetId, text) {
+      const el = document.getElementById(targetId);
+      el.value = (el.value ? el.value + ' ' : '') + text;
+      showToast(`'${text.trim()}' 추가되었습니다.`);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      
+      const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(tabId));
+      if (btn) btn.classList.add('active');
+      if (tabId === 'tab-portfolio') renderPortfolioSummary();
+    }
+
+    function getStudentStorageKey() {
+      const gradeClass = document.getElementById('selGradeClass').value;
+      const num = document.getElementById('selNumber').value;
+      return `sound_portfolio_${gradeClass}_${num}`;
+    }
+
+    async function onStudentChange() {
+      if (!isLoggedIn) return;
+      const gc = document.getElementById('selGradeClass').value;
+      const num = document.getElementById('selNumber').value;
+      // 상단바 직접 변경은 실수 방지를 위해 로그인 흐름으로 유도
+      if (gc !== loggedIdentity.gradeClass || String(num) !== String(loggedIdentity.num)) {
+        if (!confirm('학적을 ' + gc + ' ' + num + '번으로 바꾸면 다른 친구 기록이 열릴 수 있어요.\n정말 바꾸시겠어요? (이름도 함께 확인해 주세요)')) {
+          document.getElementById('selGradeClass').value = loggedIdentity.gradeClass;
+          document.getElementById('selNumber').value = loggedIdentity.num;
+          return;
+        }
+        loggedIdentity.gradeClass = gc;
+        loggedIdentity.num = String(num);
+        updateLockBadge();
+      }
+      await loadStudentData();
+    }
+
+    // ==========================================
+    // 🎙️ 오디오 녹음 기능 (MediaRecorder)
+    // ==========================================
+    async function startAudioRecording() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('이 기기/브라우저는 마이크 녹음 기능을 지원하지 않습니다.');
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+            recordedAudioBase64 = reader.result;
+            const audioEl = document.getElementById('recordedAudioElement');
+            audioEl.src = recordedAudioBase64;
+            document.getElementById('audioPlayerArea').style.display = 'block';
+
+            const key = getStudentStorageKey();
+            let data = {};
+            try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+            data.projectAudio = recordedAudioBase64;
+            localStorage.setItem(key, JSON.stringify(data));
+            await syncToCloud(false);
+            showToast('🎙️ 소리 녹음이 성공적으로 저장되었습니다!');
+          };
+          reader.readAsDataURL(audioBlob);
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        document.getElementById('btnRecordStart').disabled = true;
+        document.getElementById('btnRecordStop').disabled = false;
+        const statusEl = document.getElementById('recordStatusText');
+        statusEl.className = 'recorder-status recording';
+        statusEl.textContent = '🔴 녹음 중... (제작한 소리를 마이크에 들려주세요!)';
+
+        // 10초 후 자동 정지
+        let timeLeft = 10;
+        recordTimer = setInterval(() => {
+          timeLeft--;
+          if (timeLeft <= 0) {
+            stopAudioRecording();
+          } else {
+            statusEl.textContent = `🔴 녹음 중... (${timeLeft}초 남음)`;
+          }
+        }, 1000);
+
+      } catch (err) {
+        console.error('Microphone error:', err);
+        alert('마이크 사용 권한을 허용해 주셔야 녹음할 수 있습니다.');
+      }
+    }
+
+    function stopAudioRecording() {
+      if (recordTimer) clearInterval(recordTimer);
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+      document.getElementById('btnRecordStart').disabled = false;
+      document.getElementById('btnRecordStop').disabled = true;
+      const statusEl = document.getElementById('recordStatusText');
+      statusEl.className = 'recorder-status';
+      statusEl.textContent = '✅ 녹음 완료! 아래에서 들어볼 수 있어요.';
+    }
+
+    // 대본 선택 시 자동 입력
+    function selectScript(num) {
+      document.querySelectorAll('.script-card').forEach(c => c.classList.remove('selected'));
+      const card = document.getElementById(`scriptCard${num}`);
+      if (card) card.classList.add('selected');
+
+      const names = [
+        '장면 1: 비 오는 숲속 모험 (바람, 빗소리, 천둥소리)',
+        '장면 2: 쿵쾅쿵쾅 밤의 탐정 (발소리, 문소리, 말발굽)',
+        '장면 3: 동물 숲속 운동회 (호루라기, 달리기, 함성)'
+      ];
+      const linkInput = document.getElementById('projectLinkInput');
+      linkInput.value = names[num - 1];
+      showToast(`'${names[num - 1]}' 대본이 선택되었습니다!`);
+      syncToCloud(false);
+    }
+
+    // DIY 설계도 선택 시 자동 입력
+    function applyDiyToProject(diyName) {
+      const linkInput = document.getElementById('projectLinkInput');
+      linkInput.value = (linkInput.value ? linkInput.value + ' / ' : '') + `[제작] ${diyName}`;
+      showToast(`'${diyName}' 설계도가 선택되었습니다!`);
+      syncToCloud(false);
+    }
+
+    // ==========================================
+    // 🔄 학생 데이터 로드 (로컬 + 클라우드 복원)
+    // ==========================================
+    async function loadStudentData() {
+      const gradeClass = document.getElementById('selGradeClass').value;
+      const num = parseInt(document.getElementById('selNumber').value, 10);
+      const studentId = `${gradeClass}_${num}`;
+      const nameInput = document.getElementById('inputName');
+      const statusBadge = document.getElementById('saveStatusBadge');
+      // 이름 입력창을 고치면 로그인 신원에도 반영
+      if (isLoggedIn && nameInput.value.trim() && nameInput.value.trim() !== loggedIdentity.name) {
+        loggedIdentity.name = nameInput.value.trim();
+        updateLockBadge();
+      }
+
+      let data = null;
+
+      // 1. 로컬 저장소 확인
+      const localRaw = localStorage.getItem(getStudentStorageKey());
+      if (localRaw) {
+        try { data = JSON.parse(localRaw); } catch(e){}
+      }
+
+      // 2. Supabase 클라우드 조회 (오프라인/에러 시 로컬 유지)
+      if (sbClient) {
+        try {
+          const { data: cloudData, error } = await sbClient
+            .from('263과학3단원소리')
+            .select('*')
+            .eq('id', studentId)
+            .maybeSingle();
+
+          if (!error && cloudData) {
+            data = {
+              name: cloudData.student_name || (data && data.name) || '',
+              gradeClass: cloudData.grade_class,
+              num: cloudData.student_num,
+              lessons: cloudData.lessons || (data && data.lessons) || {},
+              mindNodes: cloudData.mind_nodes || (data && data.mindNodes) || STUDENT_DEFAULT_MIND_NODES,
+              projectImage: cloudData.project_image || cloudData.poster_image || (data && data.projectImage) || null,
+              projectAudio: cloudData.project_audio || (data && data.projectAudio) || null,
+              projectLink: cloudData.project_link || cloudData.poster_link || (data && data.projectLink) || '',
+              reflection: cloudData.reflection || (data && data.reflection) || {},
+              slowData: cloudData.slow_data || (data && data.slowData) || {},
+              feedbackText: cloudData.feedback_text || '',
+              feedbackAt: cloudData.feedback_at || '',
+              updatedAt: cloudData.updated_at
+            };
+            localStorage.setItem(getStudentStorageKey(), JSON.stringify(data));
+            statusBadge.textContent = '🟢 클라우드 데이터 동기화 완료';
+            if (data.name && isLoggedIn && data.name.trim() && data.name.trim() !== loggedIdentity.name) {
+              statusBadge.textContent = '⚠️ 이 번호에 저장된 이름(' + data.name + ')과 입력한 이름이 다릅니다. 본인 번호가 맞는지 꼭 확인하세요!';
+            }
+          } else if (error && error.code === 'PGRST205') {
+            statusBadge.textContent = '🟡 로컬 안전 모드 (Supabase에 테이블 생성 필요)';
+          }
+        } catch (err) {
+          console.warn("Cloud load fallback to local:", err);
+        }
+      }
+
+      if (data) {
+        // 클라우드에 이름이 있으면 사용, 없으면 로그인 이름 유지 (덮어쓰기 방지)
+        if (data.name && data.name.trim()) {
+          nameInput.value = data.name;
+          if (isLoggedIn) { loggedIdentity.name = data.name.trim(); updateLockBadge(); }
+        } else if (isLoggedIn && loggedIdentity.name) {
+          nameInput.value = loggedIdentity.name;
+          data.name = loggedIdentity.name;
+        } else {
+          nameInput.value = data.name || '';
+        }
+        if (data.mindNodes && data.mindNodes.length > 0) mindNodes = data.mindNodes;
+        else mindNodes = JSON.parse(JSON.stringify(STUDENT_DEFAULT_MIND_NODES));
+
+        document.getElementById('projectLinkInput').value = data.projectLink || '';
+        if (data.projectImage) {
+          document.getElementById('projectPreviewImg').src = data.projectImage;
+          document.getElementById('projectPreviewContainer').style.display = 'block';
+        } else {
+          document.getElementById('projectPreviewContainer').style.display = 'none';
+        }
+
+        if (data.projectAudio) {
+          recordedAudioBase64 = data.projectAudio;
+          const aEl = document.getElementById('recordedAudioElement');
+          aEl.src = data.projectAudio;
+          document.getElementById('audioPlayerArea').style.display = 'block';
+          document.getElementById('recordStatusText').textContent = '✅ 저장된 녹음 파일이 있습니다.';
+        } else {
+          document.getElementById('audioPlayerArea').style.display = 'none';
+          document.getElementById('recordStatusText').textContent = '대기 중 (녹음 버튼을 눌러보세요)';
+        }
+
+        if (data.reflection) {
+          document.getElementById('refLearn').value = data.reflection.learn || '';
+          document.getElementById('refDesign').value = data.reflection.design || '';
+          document.getElementById('refFeel').value = data.reflection.feel || '';
+        }
+        updateLessonChipsIndicators(data.lessons);
+      } else {
+        // 신규 학생: 로그인 이름 유지 (빈칸으로 지우지 않음)
+        nameInput.value = (isLoggedIn && loggedIdentity.name) ? loggedIdentity.name : '';
+        mindNodes = JSON.parse(JSON.stringify(STUDENT_DEFAULT_MIND_NODES));
+        document.getElementById('projectLinkInput').value = '';
+        document.getElementById('projectPreviewContainer').style.display = 'none';
+        document.getElementById('audioPlayerArea').style.display = 'none';
+        document.getElementById('recordStatusText').textContent = '대기 중 (녹음 버튼을 눌러보세요)';
+        document.getElementById('refLearn').value = '';
+        document.getElementById('refDesign').value = '';
+        document.getElementById('refFeel').value = '';
+        updateLessonChipsIndicators({});
+      }
+
+      loadCurrentLessonInputs();
+      renderMindMap();
+      renderFeedbackBanner();
+      renderPortfolioSummary();
+    }
+
+    function renderFeedbackBanner() {
+      const banner = document.getElementById('feedbackBanner');
+      if (!banner) return;
+      const key = getStudentStorageKey();
+      let data = {};
+      try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+      const fb = data.feedbackText || '';
+      const at = data.feedbackAt || '';
+      if (fb) {
+        banner.style.display = 'block';
+        banner.innerHTML = '<strong>💌 선생님 피드백' + (at ? ' <span style="font-size:0.8rem; color:#92400E;">(' + escHtml(at) + ')</span>' : '') + '</strong><div style="margin-top:6px; white-space:pre-wrap;">' + escHtml(fb) + '</div>';
+      } else {
+        banner.style.display = 'none';
+        banner.innerHTML = '';
+      }
+    }
+
+    function loadCurrentLessonInputs() {
+      const key = getStudentStorageKey();
+      const raw = localStorage.getItem(key);
+      
+      const obsEl = document.getElementById('lessonObservation');
+      const lifeEl = document.getElementById('lessonLifeExample');
+      const thoughtEl = document.getElementById('lessonThought');
+      const kwlKEl = document.getElementById('lessonKwlK');
+      const kwlWEl = document.getElementById('lessonKwlW');
+      const kwlThoughtEl = document.getElementById('lessonKwlThought');
+
+      if (obsEl) obsEl.value = '';
+      if (lifeEl) lifeEl.value = '';
+      if (thoughtEl) thoughtEl.value = '';
+      if (kwlKEl) kwlKEl.value = '';
+      if (kwlWEl) kwlWEl.value = '';
+      if (kwlThoughtEl) kwlThoughtEl.value = '';
+
+      if (raw) {
+        try {
+          const data = JSON.parse(raw);
+          if (data.lessons && data.lessons[currentLessonNum]) {
+            const cur = data.lessons[currentLessonNum];
+            if (currentLessonNum === 1) {
+              if (kwlKEl) kwlKEl.value = cur.kwlK || (cur.observation ? cur.observation.replace('[K: 알고 있는 사실] ', '') : '');
+              if (kwlWEl) kwlWEl.value = cur.kwlW || (cur.lifeExample ? cur.lifeExample.replace('[W: 알고 싶은 내용] ', '') : '');
+              if (kwlThoughtEl) kwlThoughtEl.value = cur.thought || '';
+            } else {
+              if (obsEl) obsEl.value = cur.observation || '';
+              if (lifeEl) lifeEl.value = cur.lifeExample || '';
+              if (thoughtEl) thoughtEl.value = cur.thought || '';
+            }
+          }
+        } catch(e){}
+      }
+    }
+
+    // ==========================================
+    // ☁️ 즉시 동기화 (Supabase + LocalStorage)
+    // ==========================================
+    async function syncToCloud(showToastMsg = true) {
+      if (!isLoggedIn) {
+        if (showToastMsg) showToast('먼저 반·번호·이름으로 로그인해 주세요!');
+        return false;
+      }
+      const key = getStudentStorageKey();
+      let data = {};
+      try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+
+      const gradeClass = document.getElementById('selGradeClass').value;
+      const num = parseInt(document.getElementById('selNumber').value, 10);
+      const name = document.getElementById('inputName').value.trim();
+      if (!name) {
+        showToast('이름을 입력해야 저장됩니다! 상단 이름 칸을 확인해 주세요.');
+        document.getElementById('inputName').focus();
+        return false;
+      }
+      loggedIdentity.name = name;
+      updateLockBadge();
+
+      data.gradeClass = gradeClass;
+      data.num = num;
+      data.name = name;
+      data.updatedAt = new Date().toISOString();
+
+      localStorage.setItem(key, JSON.stringify(data));
+      updateLessonChipsIndicators(data.lessons);
+      renderFeedbackBanner();
+
+      const statusBadge = document.getElementById('saveStatusBadge');
+      statusBadge.textContent = '⏳ 클라우드 동기화 중...';
+
+      // 주의: 실제 테이블 컬럼만 전송 (poster_* 없음). feedback_*는 교사 전용이라 학생 저장 시 절대 덮어쓰지 않음.
+      const payload = {
+        id: `${gradeClass}_${num}`,
+        grade_class: gradeClass,
+        student_num: num,
+        student_name: name,
+        lessons: data.lessons || {},
+        mind_nodes: mindNodes || [],
+        project_image: data.projectImage || null,
+        project_audio: data.projectAudio || null,
+        project_link: data.projectLink || null,
+        reflection: data.reflection || {},
+        slow_data: data.slowData || {},
+        is_submitted: true,
+        submitted_at: new Date().toLocaleString(),
+        updated_at: data.updatedAt
+      };
+
+      if (sbClient) {
+        try {
+          const { error } = await sbClient.from('263과학3단원소리').upsert(payload, { onConflict: 'id' });
+          if (!error) {
+            statusBadge.textContent = `🟢 클라우드 저장 완료 (${new Date().toLocaleTimeString()})`;
+            if (showToastMsg) showToast('☁️ 클라우드에 안전하게 저장되었습니다! (선생님 확인 가능)');
+            return true;
+          } else {
+            console.warn("Supabase upsert note:", error.message, error.code);
+            statusBadge.textContent = '⚠️ 클라우드 저장 실패: ' + (error.message || error.code) + ' (로컬에는 보관됨)';
+            if (showToastMsg) showToast('⚠️ 클라우드 전송 실패. 로컬에는 저장됐으니 인터넷 확인 후 다시 저장해 주세요.');
+            return false;
+          }
+        } catch (err) {
+          console.error("Supabase upsert error:", err);
+        }
+      }
+
+      statusBadge.textContent = '🟡 로컬 저장 완료 (오프라인 안전 보관)';
+      if (showToastMsg) showToast('💾 저장 완료되었습니다!');
+    }
+
+    async function saveCurrentLessonData() {
+      const key = getStudentStorageKey();
+      let data = {};
+      try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+
+      if (!data.lessons) data.lessons = {};
+      if (currentLessonNum === 1) {
+        data.lessons[1] = {
+          kwlK: document.getElementById('lessonKwlK').value,
+          kwlW: document.getElementById('lessonKwlW').value,
+          observation: `[K: 알고 있는 사실] ${document.getElementById('lessonKwlK').value}`,
+          lifeExample: `[W: 알고 싶은 내용] ${document.getElementById('lessonKwlW').value}`,
+          thought: document.getElementById('lessonKwlThought').value,
+          savedAt: new Date().toLocaleString()
+        };
+      } else {
+        data.lessons[currentLessonNum] = {
+          observation: document.getElementById('lessonObservation').value,
+          lifeExample: document.getElementById('lessonLifeExample').value,
+          thought: document.getElementById('lessonThought').value,
+          savedAt: new Date().toLocaleString()
+        };
+      }
+      localStorage.setItem(key, JSON.stringify(data));
+
+      await syncToCloud(true);
+      renderPortfolioSummary();
+    }
+
+    async function saveReflectionData() {
+      const key = getStudentStorageKey();
+      let data = {};
+      try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+
+      data.reflection = {
+        learn: document.getElementById('refLearn').value,
+        design: document.getElementById('refDesign').value,
+        feel: document.getElementById('refFeel').value,
+        savedAt: new Date().toLocaleString()
+      };
+      localStorage.setItem(key, JSON.stringify(data));
+
+      await syncToCloud(true);
+      renderPortfolioSummary();
+    }
+
+    async function saveCurrentData(showMsg = true) {
+      await saveCurrentLessonData();
+      await saveReflectionData();
+      if (showMsg) showToast('🌟 포트폴리오 전체 내용이 안전하게 저장되었습니다!');
+    }
+
+    function handleProjectImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        const base64 = evt.target.result;
+        document.getElementById('projectPreviewImg').src = base64;
+        document.getElementById('projectPreviewContainer').style.display = 'block';
+
+        const key = getStudentStorageKey();
+        let data = {};
+        try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+        data.projectImage = base64;
+        data.projectLink = document.getElementById('projectLinkInput').value;
+        localStorage.setItem(key, JSON.stringify(data));
+
+        await syncToCloud(true);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ==========================================
+    // 🧠 인터랙티브 생각 그물 (마인드맵)
+    // ==========================================
+    function renderMindMap() {
+      const canvas = document.getElementById('mindmapCanvas');
+      const svg = document.getElementById('mindmapSvg');
+      svg.innerHTML = '';
+      const oldNodes = canvas.querySelectorAll('.mindmap-node');
+      oldNodes.forEach(n => n.remove());
+
+      const root = mindNodes.find(n => n.id === 'root') || mindNodes[0];
+
+      mindNodes.forEach(n => {
+        if (n.id !== root.id) {
+          const parent = mindNodes.find(p => p.id === (n.parentId || 'root')) || root;
+          const isDirectToRoot = (parent.id === root.id);
+
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', parent.x + 60);
+          line.setAttribute('y1', parent.y + 25);
+          line.setAttribute('x2', n.x + 50);
+          line.setAttribute('y2', n.y + 20);
+          
+          line.setAttribute('stroke', isDirectToRoot ? '#4F46E5' : '#0D9488');
+          line.setAttribute('stroke-width', isDirectToRoot ? '2.5' : '2');
+          line.setAttribute('stroke-dasharray', n.type === 'item' ? '4' : '0');
+          svg.appendChild(line);
+        }
+      });
+
+      mindNodes.forEach(n => {
+        const el = document.createElement('div');
+        el.className = `mindmap-node ${n.type}`;
+        el.style.left = `${n.x}px`;
+        el.style.top = `${n.y}px`;
+        el.id = `node-${n.id}`;
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = n.text;
+        el.appendChild(textSpan);
+
+        const branchBtn = document.createElement('button');
+        branchBtn.className = 'node-branch-btn';
+        branchBtn.innerHTML = '+';
+        branchBtn.title = `'${n.text}'에서 새 가지 뻗기`;
+        branchBtn.onclick = (e) => {
+          e.stopPropagation();
+          branchFromNode(n.id, n.text);
+        };
+        el.appendChild(branchBtn);
+
+        if (n.id !== 'root') {
+          const delBtn = document.createElement('button');
+          delBtn.className = 'node-delete-btn';
+          delBtn.innerHTML = '×';
+          delBtn.title = '이 생각 노드 삭제하기';
+          delBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteMindNode(n.id);
+          };
+          el.appendChild(delBtn);
+        }
+
+        el.ondblclick = async (e) => {
+          if (e.target.classList.contains('node-delete-btn') || e.target.classList.contains('node-branch-btn')) return;
+          const newTxt = prompt('노드 내용을 수정하세요:\n(글자를 다 지우고 확인을 누르면 노드가 삭제됩니다)', n.text);
+          if (newTxt !== null) {
+            if (newTxt.trim() === '' && n.id !== 'root') {
+              deleteMindNode(n.id);
+            } else if (newTxt.trim() !== '') {
+              n.text = newTxt.trim();
+              saveMindMapData();
+              renderMindMap();
+              await syncToCloud(false);
+            }
+          }
+        };
+
+        el.onmousedown = (e) => {
+          if (e.target.classList.contains('node-delete-btn') || e.target.classList.contains('node-branch-btn')) return;
+          startDragNode(e, n);
+        };
+        el.ontouchstart = (e) => {
+          if (e.target.classList.contains('node-delete-btn') || e.target.classList.contains('node-branch-btn')) return;
+          startDragNode(e, n);
+        };
+        canvas.appendChild(el);
+      });
+
+      updateParentSelectOptions();
+    }
+
+    function startDragNode(e, node) {
+      draggedNode = node;
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      dragOffset.x = clientX - node.x;
+      dragOffset.y = clientY - node.y;
+
+      window.addEventListener('mousemove', onDragNode);
+      window.addEventListener('mouseup', stopDragNode);
+      window.addEventListener('touchmove', onDragNode, { passive: false });
+      window.addEventListener('touchend', stopDragNode);
+    }
+
+    function onDragNode(e) {
+      if (!draggedNode) return;
+      if (e.cancelable) e.preventDefault();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const canvas = document.getElementById('mindmapCanvas');
+
+      let newX = clientX - dragOffset.x;
+      let newY = clientY - dragOffset.y;
+      newX = Math.max(10, Math.min(newX, canvas.clientWidth - 130));
+      newY = Math.max(10, Math.min(newY, canvas.clientHeight - 60));
+
+      draggedNode.x = newX;
+      draggedNode.y = newY;
+      renderMindMap();
+    }
+
+    async function stopDragNode() {
+      if (draggedNode) {
+        saveMindMapData();
+        draggedNode = null;
+        await syncToCloud(false);
+      }
+      window.removeEventListener('mousemove', onDragNode);
+      window.removeEventListener('mouseup', stopDragNode);
+      window.removeEventListener('touchmove', onDragNode);
+      window.removeEventListener('touchend', stopDragNode);
+    }
+
+    function updateParentSelectOptions() {
+      const sel = document.getElementById('mindNodeParentSelect');
+      if (!sel) return;
+      const currentVal = sel.value;
+      sel.innerHTML = '';
+
+      mindNodes.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.id;
+        opt.textContent = n.text.length > 15 ? n.text.slice(0, 15) + '…' : n.text;
+        sel.appendChild(opt);
+      });
+
+      if (mindNodes.some(n => n.id === currentVal)) {
+        sel.value = currentVal;
+      }
+    }
+
+    async function addMindNode() {
+      const sel = document.getElementById('mindNodeParentSelect');
+      const parentId = sel ? sel.value : 'root';
+      const parentNode = mindNodes.find(n => n.id === parentId) || mindNodes[0];
+
+      const text = prompt(`'${parentNode.text}'에 연결할 새로운 생각이나 특징을 입력하세요:`);
+      if (!text || !text.trim()) return;
+
+      const id = 'n_' + Date.now();
+      const offsetX = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 80) + 120);
+      const offsetY = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 60) + 60);
+      const canvas = document.getElementById('mindmapCanvas');
+
+      let newX = parentNode.x + offsetX;
+      let newY = parentNode.y + offsetY;
+      if (canvas) {
+        newX = Math.max(30, Math.min(newX, canvas.clientWidth - 150));
+        newY = Math.max(30, Math.min(newY, canvas.clientHeight - 80));
+      }
+
+      mindNodes.push({
+        id: id,
+        text: '💡 ' + text.trim(),
+        x: newX,
+        y: newY,
+        type: 'item',
+        parentId: parentId
+      });
+
+      saveMindMapData();
+      renderMindMap();
+      await syncToCloud(false);
+      showToast(`'${parentNode.text}'에 새 가지가 연결되었습니다! 🌿`);
+    }
+
+    async function branchFromNode(parentId, parentText) {
+      const text = prompt(`'${parentText}'에서 뻗어나갈 새로운 생각이나 실험 내용을 적어보세요:`);
+      if (!text || !text.trim()) return;
+
+      const parentNode = mindNodes.find(n => n.id === parentId) || mindNodes[0];
+      const id = 'n_' + Date.now();
+
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 120 + Math.random() * 50;
+      const canvas = document.getElementById('mindmapCanvas');
+
+      let newX = parentNode.x + Math.cos(angle) * dist;
+      let newY = parentNode.y + Math.sin(angle) * dist;
+      if (canvas) {
+        newX = Math.max(30, Math.min(newX, canvas.clientWidth - 150));
+        newY = Math.max(30, Math.min(newY, canvas.clientHeight - 80));
+      }
+
+      mindNodes.push({
+        id: id,
+        text: '🌱 ' + text.trim(),
+        x: Math.round(newX),
+        y: Math.round(newY),
+        type: 'item',
+        parentId: parentId
+      });
+
+      saveMindMapData();
+      renderMindMap();
+      await syncToCloud(false);
+      showToast(`'${parentText}'에서 새 가지가 뻗어나왔습니다! 🌿`);
+    }
+
+    async function deleteMindNode(nodeId) {
+      const targetNode = mindNodes.find(n => n.id === nodeId);
+      const nodeName = targetNode ? targetNode.text : '노드';
+      if (confirm(`'${nodeName}' 노드를 삭제할까요?`)) {
+        mindNodes = mindNodes.filter(n => n.id !== nodeId);
+        saveMindMapData();
+        renderMindMap();
+        await syncToCloud(false);
+        showToast('노드가 삭제되었습니다.');
+      }
+    }
+
+    async function resetDefaultMindMap() {
+      if (confirm('생각 그물을 중심 노드만 있는 초기 백지 상태로 되돌릴까요?')) {
+        mindNodes = JSON.parse(JSON.stringify(STUDENT_DEFAULT_MIND_NODES));
+        saveMindMapData();
+        renderMindMap();
+        await syncToCloud(true);
+        showToast('생각 그물이 백지 상태로 초기화되었습니다.');
+      }
+    }
+
+    function saveMindMapData() {
+      const key = getStudentStorageKey();
+      let data = {};
+      try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+      data.mindNodes = mindNodes;
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    // ==========================================
+    // 🔊 TTS 음성 안내
+    // ==========================================
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) {
+        alert('음성 읽기 기능을 지원하지 않는 브라우저입니다.');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ko-KR';
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function speakCurrentLesson() {
+      const l = LESSONS.find(x => x.num === currentLessonNum);
+      if (l) speakText(`${l.num}차시 질문입니다. ${l.q}. 오늘 활동은 ${l.act} 입니다.`);
+    }
+
+    function speakMindmapSummary() {
+      speakText('소리 생각 그물입니다. 소리는 물체의 떨림으로 생겨나며, 세기와 높낮이가 다르고, 공기와 물과 책상을 통해 우리 귀까지 전달됩니다.');
+    }
+
+    function speakReflectionGuide() {
+      speakText('단원 마무리 글쓰기입니다. 배운 점, 효과음과 악기의 원리, 그리고 친구들과 함께 탐구한 소감을 적어보세요.');
+    }
+
+    // ==========================================
+    // 📖 포트폴리오 모아보기 렌더링
+    // ==========================================
+    function renderPortfolioSummary() {
+      const container = document.getElementById('portfolioSummaryView');
+      const key = getStudentStorageKey();
+      let data = {};
+      try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+
+      const rawName = data.name || document.getElementById('inputName').value || '(이름 미입력)';
+      const name = escHtml(rawName);
+      const gradeClass = document.getElementById('selGradeClass').value;
+      const num = document.getElementById('selNumber').value;
+
+      let html = `
+        <div style="border-bottom: 2px solid var(--primary); padding-bottom: 12px; margin-bottom: 20px;">
+          <h2 style="color: var(--primary-dark);">📄 ${escHtml(gradeClass)} ${escHtml(num)}번 ${name} 학생의 소리 탐구 포트폴리오</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">프로젝트 질문: "눈에 보이지 않는 소리는 어떻게 생겨나서 우리 귀까지 찾아올까?"</p>
+        </div>
+        <div style="margin-bottom: 24px; background: #F8FAFC; padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+          <h3 style="margin-bottom: 10px; color: var(--primary);">🎨 나의 사운드 디자이너 작품 (효과음 & 악기)</h3>
+      `;
+      if (data.projectImage) {
+        html += `<div style="text-align:center;"><img src="${data.projectImage}" style="max-width:100%; max-height:420px; border-radius:8px; box-shadow:var(--shadow-sm);"></div>`;
+      } else {
+        html += `<p style="color:var(--text-muted); font-size:0.9rem;">아직 등록된 작품 사진이 없습니다. [사운드 디자이너] 탭에서 등록해 주세요.</p>`;
+      }
+      if (data.projectAudio) {
+        html += `<div style="margin-top:12px; text-align:center;"><p style="font-weight:700; font-size:0.85rem; color:#16A34A; margin-bottom:4px;">🎧 내가 직접 녹음한 소리:</p><audio src="${data.projectAudio}" controls style="max-width:100%;"></audio></div>`;
+      }
+      if (data.projectLink) {
+        html += `<p style="margin-top:8px; font-size:0.85rem;">🔗 작품 소개/대본: ${escHtml(data.projectLink)}</p>`;
+      }
+      if (data.feedbackText) {
+        html += `<div style="margin-top:10px; background:#FFFBEB; border:2px solid #F59E0B; border-radius:8px; padding:10px 12px;"><strong>💌 선생님 피드백${data.feedbackAt ? ' (' + escHtml(data.feedbackAt) + ')' : ''}:</strong><div style="margin-top:4px; white-space:pre-wrap;">${escHtml(data.feedbackText)}</div></div>`;
+      }
+      const slowCount = data.slowData ? Object.keys(data.slowData).length : 0;
+      const mindCount = (data.mindNodes && data.mindNodes.length) || 0;
+      html += `<p style="margin-top:8px; font-size:0.82rem; color:#475569;">🧠 생각그물 노드 ${mindCount}개 · 🌱 쉬운모드 ${slowCount}단계 저장됨</p>`;
+      html += `</div>
+        <div style="margin-bottom: 24px; background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+          <h3 style="margin-bottom: 12px; color: var(--primary);">✍️ 단원 마무리 글쓰기</h3>
+          <div style="margin-bottom: 10px;">
+            <strong>1. 배운 과학 원리:</strong>
+            <p style="background:#F8FAFC; padding:8px 12px; border-radius:6px; font-size:0.9rem; margin-top:4px; white-space:pre-wrap;">${escHtml((data.reflection && data.reflection.learn) || '작성 전')}</p>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <strong>2. 작품 설계 중점:</strong>
+            <p style="background:#F8FAFC; padding:8px 12px; border-radius:6px; font-size:0.9rem; margin-top:4px; white-space:pre-wrap;">${escHtml((data.reflection && data.reflection.design) || '작성 전')}</p>
+          </div>
+          <div>
+            <strong>3. 탐구 소감:</strong>
+            <p style="background:#F8FAFC; padding:8px 12px; border-radius:6px; font-size:0.9rem; margin-top:4px; white-space:pre-wrap;">${escHtml((data.reflection && data.reflection.feel) || '작성 전')}</p>
+          </div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <h3 style="margin-bottom: 12px; color: var(--primary);">📑 1~14차시 탐구 기록 모아보기</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+            <thead>
+              <tr style="background: var(--primary-light); border-bottom: 2px solid var(--border);">
+                <th style="padding: 8px; border: 1px solid var(--border); width: 80px;">차시</th>
+                <th style="padding: 8px; border: 1px solid var(--border);">핵심 질문 & 관찰 결과</th>
+                <th style="padding: 8px; border: 1px solid var(--border);">생활 속 사례</th>
+                <th style="padding: 8px; border: 1px solid var(--border);">소감</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      LESSONS.forEach(l => {
+        const lData = (data.lessons && data.lessons[l.num]) || {};
+        html += `
+          <tr>
+            <td style="padding: 8px; border: 1px solid var(--border); font-weight: bold; text-align: center; background: #F8FAFC;">
+              ${l.num}차시
+            </td>
+            <td style="padding: 8px; border: 1px solid var(--border);">
+              <div style="font-weight:700; color:#3730A3; margin-bottom:4px;">Q. ${l.q}</div>
+              <div style="white-space:pre-wrap;">${lData.observation ? escHtml(lData.observation) : '<span style="color:#94A3B8;">(기록 없음)</span>'}</div>
+            </td>
+            <td style="padding: 8px; border: 1px solid var(--border); white-space:pre-wrap;">${lData.lifeExample ? escHtml(lData.lifeExample) : '<span style="color:#94A3B8;">-</span>'}</td>
+            <td style="padding: 8px; border: 1px solid var(--border); white-space:pre-wrap;">${lData.thought ? escHtml(lData.thought) : '<span style="color:#94A3B8;">-</span>'}</td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table></div>`;
+      container.innerHTML = html;
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ==========================================
+    // 👩‍🏫 교사용 대시보드 및 보안 로직
+    // ==========================================
+    let teacherPassword = localStorage.getItem('teacher_sound_pw') || '3406';
+
+    function toggleTeacherView() {
+      const studentBar = document.getElementById('studentBar');
+      const studentTabs = document.getElementById('studentTabs');
+      const teacherView = document.getElementById('view-teacher');
+
+      if (teacherView.style.display === 'none') {
+        studentBar.style.display = 'none';
+        studentTabs.style.display = 'none';
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        teacherView.style.display = 'block';
+        document.getElementById('teacherLock').style.display = 'block';
+        document.getElementById('teacherDashboard').style.display = 'none';
+        document.getElementById('teacherPwInput').value = '';
+      } else {
+        teacherView.style.display = 'none';
+        studentBar.style.display = 'flex';
+        studentTabs.style.display = 'flex';
+        switchTab('tab-lessons');
+      }
+    }
+
+    function verifyTeacherPw() {
+      const input = document.getElementById('teacherPwInput').value;
+      if (input === teacherPassword) {
+        document.getElementById('teacherLock').style.display = 'none';
+        document.getElementById('teacherDashboard').style.display = 'block';
+        fetchSupabaseAllData();
+      } else {
+        alert('비밀번호가 일치하지 않습니다.');
+      }
+    }
+
+    function changeTeacherPwPrompt() {
+      const newPw = prompt('새로운 선생님 비밀번호를 입력하세요:');
+      if (newPw && newPw.trim().length >= 4) {
+        teacherPassword = newPw.trim();
+        localStorage.setItem('teacher_sound_pw', teacherPassword);
+        alert('비밀번호가 성공적으로 변경되었습니다.');
+      } else if (newPw) {
+        alert('비밀번호는 4자리 이상이어야 합니다.');
+      }
+    }
+
+    function filterClass(cls) {
+      currentTeacherFilterClass = cls;
+      document.getElementById('btnFilter31').className = cls === '3-1' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-white';
+      document.getElementById('btnFilter32').className = cls === '3-2' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-white';
+      document.getElementById('btnFilter33').className = cls === '3-3' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-white';
+      loadTeacherGrid();
+    }
+
+    function toggleTeacherExampleMindmap() {
+      const container = document.getElementById('teacherExampleMindmapContainer');
+      const btn = document.getElementById('btnToggleTeacherExampleMindmap');
+      if (container.style.display === 'none') {
+        container.style.display = 'block';
+        btn.textContent = '👁️ 예시 마인드맵 접기';
+        renderTeacherExampleMindmap();
+      } else {
+        container.style.display = 'none';
+        btn.textContent = '👁️ 예시 마인드맵 펼치기';
+      }
+    }
+
+    function renderTeacherExampleMindmap() {
+      const canvas = document.getElementById('teacherMindmapCanvas');
+      const svg = document.getElementById('teacherMindmapSvg');
+      if (!canvas || !svg) return;
+      
+      svg.innerHTML = '';
+      const oldNodes = canvas.querySelectorAll('.teacher-mind-node');
+      oldNodes.forEach(n => n.remove());
+
+      const root = TEACHER_EXAMPLE_MIND_NODES.find(n => n.id === 'root') || TEACHER_EXAMPLE_MIND_NODES[0];
+      TEACHER_EXAMPLE_MIND_NODES.forEach(n => {
+        if (n.id !== root.id) {
+          const parent = TEACHER_EXAMPLE_MIND_NODES.find(p => p.id === (n.parentId || 'root')) || root;
+          const isDirectToRoot = (parent.id === root.id);
+
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', parent.x + 60);
+          line.setAttribute('y1', parent.y + 25);
+          line.setAttribute('x2', n.x + 50);
+          line.setAttribute('y2', n.y + 20);
+          line.setAttribute('stroke', isDirectToRoot ? '#4F46E5' : '#0D9488');
+          line.setAttribute('stroke-width', isDirectToRoot ? '2.5' : '2');
+          line.setAttribute('stroke-dasharray', n.type === 'item' ? '4' : '0');
+          svg.appendChild(line);
+        }
+      });
+
+      TEACHER_EXAMPLE_MIND_NODES.forEach(n => {
+        const el = document.createElement('div');
+        el.className = `mindmap-node ${n.type} teacher-mind-node`;
+        el.style.left = `${n.x}px`;
+        el.style.top = `${n.y}px`;
+        el.style.cursor = 'default';
+        el.textContent = n.text;
+        canvas.appendChild(el);
+      });
+    }
+
+    async function fetchSupabaseAllData() {
+      const statusLabel = document.getElementById('cloudSyncStatus');
+      if (sbClient) {
+        statusLabel.textContent = '🔄 데이터 불러오는 중...';
+        try {
+          const { data, error } = await sbClient.from('263과학3단원소리').select('*');
+          if (!error && data) {
+            cloudStudentData = {};
+            data.forEach(item => {
+              cloudStudentData[item.id] = {
+                name: item.student_name,
+                gradeClass: item.grade_class,
+                num: item.student_num,
+                lessons: item.lessons || {},
+                mindNodes: item.mind_nodes,
+                projectImage: item.project_image,
+                projectAudio: item.project_audio,
+                projectLink: item.project_link,
+                reflection: item.reflection,
+                slowData: item.slow_data,
+                feedbackText: item.feedback_text || '',
+                feedbackAt: item.feedback_at || '',
+                isSubmitted: item.is_submitted,
+                submittedAt: item.submitted_at,
+                updatedAt: item.updated_at
+              };
+            });
+            statusLabel.textContent = `🟢 클라우드 실시간 동기화 (${data.length}명 수신)`;
+          } else {
+            statusLabel.textContent = '🟡 로컬 모드 (오프라인 저장소 기준)';
+          }
+        } catch (err) {
+          console.warn("Supabase fetch error:", err);
+          statusLabel.textContent = '🟡 로컬 저장소 기준 조회';
+        }
+      } else {
+        statusLabel.textContent = '🟡 오프라인 로컬 저장소 모드';
+      }
+      loadTeacherGrid();
+    }
+
+    function countFilledLessons(lessons) {
+      if (!lessons) return 0;
+      let count = 0;
+      for (let i = 1; i <= 14; i++) {
+        const item = lessons[i];
+        if (item && (item.observation || item.lifeExample || item.thought || item.kwlK)) count++;
+      }
+      return count;
+    }
+
+    function loadTeacherGrid() {
+      const grid = document.getElementById('teacherStudentGrid');
+      grid.innerHTML = '';
+      let activeStudentCount = 0;
+
+      for (let i = 1; i <= 30; i++) {
+        const id = `${currentTeacherFilterClass}_${i}`;
+        let student = cloudStudentData[id];
+
+        if (!student) {
+          const localKey = `sound_portfolio_${currentTeacherFilterClass}_${i}`;
+          const raw = localStorage.getItem(localKey);
+          if (raw) {
+            try { student = JSON.parse(raw); } catch(e){}
+          }
+        }
+
+        const filledCount = student ? countFilledLessons(student.lessons) : 0;
+        const hasWork = filledCount > 0 || (student && (student.projectImage || student.projectAudio || student.projectLink || (student.reflection && student.reflection.learn)));
+        if (hasWork) activeStudentCount++;
+
+        let statusClass = '';
+        let progressText = '⏳ 미작성';
+        if (filledCount >= 10) {
+          statusClass = 'completed';
+          progressText = `🌟 ${filledCount}개 차시 완성`;
+        } else if (hasWork) {
+          statusClass = 'active-writing';
+          progressText = `✏️ ${filledCount}개 차시 작성 중`;
+        }
+
+        const btn = document.createElement('div');
+        btn.className = `student-badge-btn ${statusClass}`;
+        btn.innerHTML = `
+          <div class="num">${i}번</div>
+          <div class="name">${(student && student.name) || '(미등록)'}</div>
+          <div class="progress-badge">${progressText}</div>
+          <div class="time-badge">${student && student.updatedAt ? new Date(student.updatedAt).toLocaleTimeString().slice(0,5) : '-'}</div>
+        `;
+        btn.onclick = () => showStudentDetailModal(currentTeacherFilterClass, i, student);
+        grid.appendChild(btn);
+      }
+      document.getElementById('submittedCount').textContent = activeStudentCount;
+    }
+
+    async function saveTeacherFeedback() {
+      if (!currentModalStudentId) { alert('학생을 먼저 선택해 주세요.'); return; }
+      const fbEl = document.getElementById('teacherFeedbackInput');
+      const fb = fbEl.value;
+      const at = new Date().toLocaleString();
+      if (sbClient) {
+        try {
+          const { error } = await sbClient.from('263과학3단원소리').update({ feedback_text: fb, feedback_at: at }).eq('id', currentModalStudentId);
+          if (error) { alert('피드백 저장 실패: ' + error.message); return; }
+        } catch (err) {
+          alert('피드백 저장 중 오류가 발생했습니다.');
+          return;
+        }
+      }
+      if (cloudStudentData[currentModalStudentId]) {
+        cloudStudentData[currentModalStudentId].feedbackText = fb;
+        cloudStudentData[currentModalStudentId].feedbackAt = at;
+      }
+      document.getElementById('teacherFeedbackSavedAt').textContent = fb ? ('저장됨: ' + at) : '';
+      showToast('💌 피드백이 저장됐습니다. 학생 화면에 바로 보입니다!');
+    }
+
+    function showStudentDetailModal(cls, num, student) {
+      const modal = document.getElementById('teacherStudentDetailModal');
+      const title = document.getElementById('modalStudentTitle');
+      const body = document.getElementById('modalStudentBody');
+
+      currentModalStudentId = cls + '_' + num;
+      title.textContent = '📋 ' + cls + ' ' + num + '번 ' + ((student && student.name) || '이름 없음') + ' 학생 포트폴리오 (실시간)';
+
+      const fbInput = document.getElementById('teacherFeedbackInput');
+      const fbSaved = document.getElementById('teacherFeedbackSavedAt');
+      if (fbInput) fbInput.value = (student && student.feedbackText) || '';
+      if (fbSaved) fbSaved.textContent = (student && student.feedbackAt) ? ('저장됨: ' + student.feedbackAt) : '';
+
+      if (!student) {
+        body.innerHTML = '<p style="color:var(--text-muted); padding:20px 0;">아직 저장된 학생 데이터가 없습니다.</p>';
+      } else {
+        const filled = countFilledLessons(student.lessons);
+        let lessonsHtml = '<div style="margin-top:10px; max-height:260px; overflow-y:auto; border:1px solid #E2E8F0; padding:8px; border-radius:6px;">';
+        for (let i = 1; i <= 14; i++) {
+          const lData = student.lessons && (student.lessons[i] || student.lessons[String(i)]);
+          if (lData && (lData.observation || lData.lifeExample || lData.thought || lData.kwlK || lData.kwlW)) {
+            lessonsHtml +=
+              '<div style="font-size:0.85rem; margin-bottom:8px; padding-bottom:6px; border-bottom:1px dashed #E2E8F0; white-space:pre-wrap;">' +
+                '<strong style="color:#4F46E5;">[' + i + '차시]</strong>' +
+                (lData.observation ? '<div>• 내용: ' + escHtml(lData.observation) + '</div>' : '') +
+                (lData.lifeExample ? '<div>• 사례/W: ' + escHtml(lData.lifeExample) + '</div>' : '') +
+                (lData.thought ? '<div>• 소감/다짐: ' + escHtml(lData.thought) + '</div>' : '') +
+                (lData.kwlK ? '<div>• K: ' + escHtml(lData.kwlK) + '</div>' : '') +
+                (lData.kwlW ? '<div>• W: ' + escHtml(lData.kwlW) + '</div>' : '') +
+                (lData.savedAt ? '<div style="color:#94A3B8; font-size:0.75rem;">저장: ' + escHtml(lData.savedAt) + '</div>' : '') +
+              '</div>';
+          }
+        }
+        lessonsHtml += '</div>';
+
+        let mindHtml = '<span style="color:#94A3B8;">(생각그물 기록 없음)</span>';
+        if (student.mindNodes && student.mindNodes.length) {
+          mindHtml = '<ol style="font-size:0.85rem; margin:6px 0 0 18px;">' + student.mindNodes.map(function(n){ return '<li>' + escHtml(n.text || '') + '</li>'; }).join('') + '</ol>';
+        }
+        let slowHtml = '<span style="color:#94A3B8;">(쉬운모드 기록 없음)</span>';
+        if (student.slowData && Object.keys(student.slowData).length) {
+          slowHtml = '<div style="font-size:0.85rem;">' + Object.keys(student.slowData).sort().map(function(k){
+            const s = student.slowData[k];
+            return '<div style="margin-bottom:6px; padding-bottom:6px; border-bottom:1px dashed #E2E8F0;">• ' + escHtml(String(s.lessonRef || (k + '단계'))) + ' 선택: ' + escHtml((s.choices || []).join(', ')) + '<br>• 따라쓰기: ' + escHtml(s.trace || '-') + '<br>• 도장: ' + escHtml(s.stamp || '-') + '</div>';
+          }).join('') + '</div>';
+        }
+
+        body.innerHTML =
+          '<div style="font-size:0.9rem; margin-bottom:12px; background:#F8FAFC; padding:8px; border-radius:6px;">' +
+            '<span>진행 상황: <strong>' + filled + '개 차시 작성 누적</strong></span> | ' +
+            '<span>최근 저장: ' + (student.updatedAt ? escHtml(new Date(student.updatedAt).toLocaleString()) : '-') + '</span>' +
+          '</div>' +
+          '<div style="margin-bottom:14px;"><strong>[1~14차시 작성 내용 모아보기 — 있는 그대로]</strong>' + lessonsHtml + '</div>' +
+          '<div style="margin-bottom:14px;"><strong>[🧠 생각그물 원문 ' + ((student.mindNodes && student.mindNodes.length) || 0) + '개]</strong><br>' + mindHtml + '</div>' +
+          '<div style="margin-bottom:14px;"><strong>[🌱 쉬운모드 원문]</strong><br>' + slowHtml + '</div>' +
+          '<div style="margin-bottom:14px;"><strong>[사운드 디자이너 작품]</strong><br>' +
+            (student.projectAudio ? '<div style="margin: 8px 0;"><p style="font-size:0.8rem; font-weight:700; color:#16A34A;">🎧 학생 녹음 소리 재생:</p><audio src="' + student.projectAudio + '" controls style="max-width:100%;"></audio></div>' : '<span style="color:#94A3B8;">(녹음된 소리 없음)</span><br>') +
+            (student.projectImage ? '<img src="' + student.projectImage + '" style="max-height:200px; border-radius:6px; margin-top:6px;">' : '작품 사진 없음') +
+            (student.projectLink ? '<br>소개: ' + escHtml(student.projectLink) : '') +
+          '</div>' +
+          '<div style="margin-bottom:4px;"><strong>[마무리 글쓰기]</strong>' +
+            '<p style="white-space:pre-wrap;">• 배운 점: ' + escHtml((student.reflection && student.reflection.learn) || '-') + '</p>' +
+            '<p style="white-space:pre-wrap;">• 설계 중점: ' + escHtml((student.reflection && student.reflection.design) || '-') + '</p>' +
+            '<p style="white-space:pre-wrap;">• 소감: ' + escHtml((student.reflection && student.reflection.feel) || '-') + '</p>' +
+          '</div>';
+      }
+
+      modal.style.display = 'block';
+      modal.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function closeStudentDetail() {
+      document.getElementById('teacherStudentDetailModal').style.display = 'none';
+    }
+
+    function exportDataCSV() {
+      const q = function(s){ return String(s == null ? '' : s).replace(/"/g, '""'); };
+      let csv = '\uFEFF학급,번호,이름,작성차시수,최근저장시각,차시별전체기록,생각그물원문,쉬운모드원문,배운원리,작품설계중점,소감,작품소개,선생님피드백\n';
+      ['3-1', '3-2', '3-3'].forEach(cls => {
+        for (let i = 1; i <= 30; i++) {
+          const id = cls + '_' + i;
+          let d = cloudStudentData[id];
+          if (!d) {
+            const raw = localStorage.getItem('sound_portfolio_' + cls + '_' + i);
+            if (raw) { try { d = JSON.parse(raw); } catch(e){} }
+          }
+          if (d) {
+            const ref = d.reflection || {};
+            const filled = countFilledLessons(d.lessons);
+            let lessonAll = '';
+            for (let c = 1; c <= 14; c++) {
+              const L = d.lessons && (d.lessons[c] || d.lessons[String(c)]);
+              if (L && (L.observation || L.lifeExample || L.thought || L.kwlK || L.kwlW)) {
+                lessonAll += '[' + c + '차시] 관찰:' + (L.observation||'') + ' / 사례:' + (L.lifeExample||'') + ' / 소감:' + (L.thought||'') + (L.kwlK ? ' / K:' + L.kwlK : '') + (L.kwlW ? ' / W:' + L.kwlW : '') + ' | ';
+              }
+            }
+            const mindAll = (d.mindNodes || []).map(function(n){ return n.text || ''; }).join(' | ');
+            const slowAll = d.slowData ? Object.keys(d.slowData).map(function(k){ const s=d.slowData[k]; return k+'단계:'+(s.choices||[]).join(',')+'/'+(s.trace||'')+'/'+(s.stamp||''); }).join(' | ') : '';
+            csv += '"' + cls + '","' + i + '","' + q(d.name) + '","' + filled + '차시","' + q(d.updatedAt||'') + '","' + q(lessonAll) + '","' + q(mindAll) + '","' + q(slowAll) + '","' + q(ref.learn||'') + '","' + q(ref.design||'') + '","' + q(ref.feel||'') + '","' + q(d.projectLink||'') + '","' + q(d.feedbackText||'') + '"\n';
+          } else {
+            csv += '"' + cls + '","' + i + '","미등록","0차시","","","","","","","","","' + '"\n';
+          }
+        }
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `3학년_소리프로젝트_누적학습결과_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportDataHTML() {
+      let reportHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>3학년 소리 프로젝트 포트폴리오 모음</title><style>body{font-family:sans-serif;padding:20px;line-height:1.6;} .student-card{border:2px solid #333;padding:16px;margin-bottom:24px;border-radius:8px;page-break-inside:avoid;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #999;padding:6px;font-size:12px;vertical-align:top;} .fb{background:#FFFBEB;border:2px solid #F59E0B;padding:8px;border-radius:6px;}</style></head><body><h1>3학년 과학 3단원 소리의 성질 프로젝트 학습 결과 보고서</h1><p>출력일: ' + escHtml(new Date().toLocaleString()) + '</p>';
+      ['3-1', '3-2', '3-3'].forEach(function(cls) {
+        reportHtml += '<h2>' + escHtml(cls) + '</h2>';
+        for (let i = 1; i <= 30; i++) {
+          const id = cls + '_' + i;
+          let d = cloudStudentData[id];
+          if (!d) {
+            const raw = localStorage.getItem('sound_portfolio_' + cls + '_' + i);
+            if (raw) { try { d = JSON.parse(raw); } catch(e){} }
+          }
+          if (d && (countFilledLessons(d.lessons) > 0 || d.projectLink || d.projectImage || (d.reflection && d.reflection.learn))) {
+            const filled = countFilledLessons(d.lessons);
+            let rows = '';
+            for (let c = 1; c <= 14; c++) {
+              const L = d.lessons && (d.lessons[c] || d.lessons[String(c)]);
+              rows += '<tr><td><strong>' + c + '차시</strong></td><td>' + escHtml((L && (L.observation || L.kwlK)) || '-') + '</td><td>' + escHtml((L && (L.lifeExample || L.kwlW)) || '-') + '</td><td>' + escHtml((L && L.thought) || '-') + '</td></tr>';
+            }
+            const mindAll = escHtml((d.mindNodes || []).map(function(n){ return n.text || ''; }).join(' → ')) || '-';
+            const slowAll = d.slowData ? escHtml(Object.keys(d.slowData).sort().map(function(k){ const s=d.slowData[k]; return '['+k+'단계 '+(s.lessonRef||'')+'] '+(s.choices||[]).join(',')+' / '+(s.trace||'')+' / '+(s.stamp||''); }).join(' | ')) : '-';
+            reportHtml +=
+              '<div class="student-card">' +
+                '<h3>' + escHtml(cls) + ' ' + i + '번 ' + escHtml(d.name || '이름 없음') + ' (작성 누적: ' + filled + '개 차시)</h3>' +
+                '<table><thead><tr><th>차시</th><th>관찰·K</th><th>사례·W</th><th>소감·다짐</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+                '<p><strong>🧠 생각그물 원문:</strong> ' + mindAll + '</p>' +
+                '<p><strong>🌱 쉬운모드 원문:</strong> ' + (slowAll || '-') + '</p>' +
+                '<p><strong>마무리 글쓰기:</strong></p><ul>' +
+                  '<li>배운 원리: ' + escHtml((d.reflection && d.reflection.learn) || '-') + '</li>' +
+                  '<li>작품 중점: ' + escHtml((d.reflection && d.reflection.design) || '-') + '</li>' +
+                  '<li>소감: ' + escHtml((d.reflection && d.reflection.feel) || '-') + '</li></ul>' +
+                '<p><strong>작품 소개:</strong> ' + escHtml(d.projectLink || '-') + '</p>' +
+                (d.feedbackText ? '<div class="fb"><strong>💌 선생님 피드백 (' + escHtml(d.feedbackAt || '') + '):</strong><br>' + escHtml(d.feedbackText) + '</div>' : '') +
+                (d.projectImage ? '<p><strong>작품 사진:</strong><br><img src="' + d.projectImage + '" style="max-height:220px;"></p>' : '') +
+              '</div>';
+          }
+        }
+      });
+      reportHtml += `</body></html>`;
+      const blob = new Blob([reportHtml], { type: 'text/html;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `3학년_소리프로젝트_포트폴리오_전체모음_${new Date().toISOString().slice(0,10)}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // =========================================================
+    // 🌱 쉬운 모드 (느린학습자용 7단계 데이터 및 함수)
+    // =========================================================
+    const slowStages = {
+      1: {
+        stageNum: 1,
+        lessonRef: "2차시",
+        title: "🔔 1단계: 소리의 떨림 (2차시)",
+        prompt: "소리가 날 때 떨림이 생기는 행동을 모두 콕! 눌러보세요. (여러 개 고를 수 있어요)",
+        choices: [
+          { id: "voice", text: "목에 손 대고 말하기", emoji: "🗣️", correct: true },
+          { id: "rubber", text: "고무줄 세게 튕기기", emoji: "〰️", correct: true },
+          { id: "tuning", text: "소리굽쇠 치기", emoji: "🛎️", correct: true },
+          { id: "sleeping", text: "가만히 잠자는 인형", emoji: "🧸", correct: false }
+        ],
+        multi: true,
+        traceGuide: "소리가 나는 물체에는 떨림이 있습니다.",
+        audioPrompt: "소리가 날 때 떨림이 생기는 것을 골라보세요. 목에 손을 대고 말하거나 고무줄을 튕기면 어떻게 될까요?"
+      },
+      2: {
+        stageNum: 2,
+        lessonRef: "3차시",
+        title: "📢 2단계: 큰 소리와 작은 소리 (3차시)",
+        prompt: "실로폰(글로켄슈필)을 고무망치로 힘껏 세게 치면 어떤 소리가 날까요?",
+        choices: [
+          { id: "loud", text: "우렁차고 큰 소리 (떨림 큼)", emoji: "📢", correct: true },
+          { id: "quiet", text: "아주 작은 소리 (떨림 작음)", emoji: "🤫", correct: false }
+        ],
+        multi: false,
+        traceGuide: "세게 칠수록 떨림이 크고 큰 소리가 납니다.",
+        audioPrompt: "실로폰을 세게 치면 큰 소리가 날까요, 작은 소리가 날까요?"
+      },
+      3: {
+        stageNum: 3,
+        lessonRef: "4차시",
+        title: "🎼 3단계: 높은 소리와 낮은 소리 (4차시)",
+        prompt: "칼림바나 실로폰에서 길이가 '짧은' 건반을 치면 어떤 소리가 날까요?",
+        choices: [
+          { id: "high", text: "새처럼 맑고 높은 소리", emoji: "🐦", correct: true },
+          { id: "low", text: "곰처럼 굵고 낮은 소리", emoji: "🐻", correct: false }
+        ],
+        multi: false,
+        traceGuide: "물체가 짧을수록 더 높은 소리가 납니다.",
+        audioPrompt: "길이가 짧은 건반을 치면 높은 소리가 날까요, 낮은 소리가 날까요?"
+      },
+      4: {
+        stageNum: 4,
+        lessonRef: "6~7차시",
+        title: "🌊 4단계: 소리의 전달 (6~7차시)",
+        prompt: "소리가 통과해서 지나갈 수 있는 물질은 무엇일까요? 모두 골라보세요!",
+        choices: [
+          { id: "air", text: "공기 (기체)", emoji: "💨", correct: true },
+          { id: "water", text: "물 (액체)", emoji: "💧", correct: true },
+          { id: "desk", text: "나무 책상 (고체)", emoji: "🪵", correct: true }
+        ],
+        multi: true,
+        traceGuide: "소리는 공기, 물, 책상과 같은 물질을 통해 전달됩니다.",
+        audioPrompt: "소리는 공기뿐 아니라 물속이나 나무 책상을 통해서도 전달될까요?"
+      },
+      5: {
+        stageNum: 5,
+        lessonRef: "9차시",
+        title: "🤫 5단계: 소음 줄이기 (9차시)",
+        prompt: "교실과 집에서 이웃을 배려해 소음을 줄이는 좋은 방법은 무엇일까요?",
+        choices: [
+          { id: "mat", text: "바닥에 푹신한 매트 깔기", emoji: "🛋️", correct: true },
+          { id: "walk", text: "살살 조용히 걸어 다니기", emoji: "🧦", correct: true },
+          { id: "door", text: "문 쾅 닫지 않고 살며시 닫기", emoji: "🚪", correct: true },
+          { id: "shout", text: "실내에서 소리 지르기", emoji: "❌", correct: false }
+        ],
+        multi: true,
+        traceGuide: "실내에서는 조용히 걸어 다니며 소음을 줄입니다.",
+        audioPrompt: "교실과 집에서 소음을 줄이는 멋진 행동들을 골라보세요."
+      },
+      6: {
+        stageNum: 6,
+        lessonRef: "10~11차시",
+        title: "🌧️ 6단계: 초간단 소리 만들기 (10~11차시)",
+        prompt: "내가 직접 만들어보고 싶은 재미있는 소리를 골라보세요!",
+        choices: [
+          { id: "rain", text: "종이컵과 쌀 빗소리 쉐이커", emoji: "🌧️", correct: true },
+          { id: "horse", text: "종이컵 2개 말발굽 소리", emoji: "🐎", correct: true },
+          { id: "rubber", text: "필통과 고무줄 거문고", emoji: "🎶", correct: true },
+          { id: "straw", text: "빨대 피리 삐약삐약", emoji: "🐦", correct: true }
+        ],
+        multi: false,
+        traceGuide: "소리의 성질을 이용해 재미있는 효과음을 만듭니다.",
+        audioPrompt: "만들어보고 싶은 효과음 장치나 악기를 하나 골라보세요."
+      },
+      7: {
+        stageNum: 7,
+        lessonRef: "13~14차시",
+        title: "🌟 7단계: 칭찬 마무리 (13~14차시)",
+        prompt: "소리에 대해 열심히 배우고 친구를 배려한 나 자신에게 멋진 칭찬을 선물하세요!",
+        choices: [
+          { id: "praise_detective", text: "나는 최고의 소리 탐정!", emoji: "🕵️", correct: true },
+          { id: "praise_designer", text: "멋진 사운드 디자이너!", emoji: "💖", correct: true }
+        ],
+        multi: false,
+        traceGuide: "소리에 대해 재미있게 배웠습니다.",
+        audioPrompt: "열심히 공부한 나 자신에게 힘찬 박수를 보내주세요!"
+      }
+    };
+
+    let currentSlowStage = 1;
+    let slowSelectedChoices = [];
+    let slowSelectedStamp = '';
+
+    function selectSlowStage(stageNum) {
+      currentSlowStage = stageNum;
+      for (let i = 1; i <= 7; i++) {
+        const c = document.getElementById(`slowChip${i}`);
+        if (c) {
+          if (i === stageNum) c.className = 'chip active';
+          else c.className = 'chip';
+        }
+      }
+      renderSlowStage(stageNum);
+    }
+
+    function renderSlowStage(stageNum) {
+      const stage = slowStages[stageNum];
+      if (!stage) return;
+
+      document.getElementById('slowStageTitle').textContent = stage.title;
+      document.getElementById('slowQuestionPrompt').textContent = `❓ ${stage.prompt}`;
+      document.getElementById('slowTraceGuide').textContent = stage.traceGuide;
+
+      const choiceGrid = document.getElementById('slowChoiceGrid');
+      choiceGrid.innerHTML = '';
+      slowSelectedChoices = [];
+
+      stage.choices.forEach(c => {
+        const item = document.createElement('div');
+        item.style.cssText = 'background: #F8FAFC; border: 2px solid #CBD5E1; border-radius: 12px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 1rem; font-weight: 700; color: #1E293B; display: flex; flex-direction: column; align-items: center; gap: 8px; user-select: none;';
+        item.id = `slow_c_${c.id}`;
+        item.innerHTML = `<span style="font-size: 2.2rem;">${c.emoji}</span><span>${c.text}</span>`;
+        item.onclick = () => toggleSlowChoice(c.id, stage.multi);
+        choiceGrid.appendChild(item);
+      });
+
+      const key = getStudentStorageKey();
+      let data = {};
+      try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+      const stageData = (data.slowData && data.slowData[stageNum]) || {};
+
+      const input = document.getElementById('slowTraceInput');
+      input.value = stageData.trace || '';
+      checkSlowTraceMatch();
+
+      if (stageData.choices && Array.isArray(stageData.choices)) {
+        slowSelectedChoices = stageData.choices;
+        slowSelectedChoices.forEach(cid => {
+          const el = document.getElementById(`slow_c_${cid}`);
+          if (el) {
+            el.style.background = '#ECFDF5';
+            el.style.borderColor = '#059669';
+            el.style.color = '#065F46';
+          }
+        });
+      }
+
+      if (stageData.stamp) {
+        selectStamp(stageData.stamp);
+      } else {
+        document.querySelectorAll('#slowStampGroup button').forEach(b => {
+          b.style.background = 'white';
+          b.style.borderColor = 'var(--border)';
+          b.style.color = 'inherit';
+        });
+        slowSelectedStamp = '';
+      }
+    }
+
+    function toggleSlowChoice(choiceId, isMulti) {
+      const el = document.getElementById(`slow_c_${choiceId}`);
+      if (!el) return;
+
+      if (!isMulti) {
+        slowSelectedChoices = [choiceId];
+        document.querySelectorAll('#slowChoiceGrid > div').forEach(c => {
+          c.style.background = '#F8FAFC';
+          c.style.borderColor = '#CBD5E1';
+          c.style.color = '#1E293B';
+        });
+        el.style.background = '#ECFDF5';
+        el.style.borderColor = '#059669';
+        el.style.color = '#065F46';
+      } else {
+        if (slowSelectedChoices.includes(choiceId)) {
+          slowSelectedChoices = slowSelectedChoices.filter(x => x !== choiceId);
+          el.style.background = '#F8FAFC';
+          el.style.borderColor = '#CBD5E1';
+          el.style.color = '#1E293B';
+        } else {
+          slowSelectedChoices.push(choiceId);
+          el.style.background = '#ECFDF5';
+          el.style.borderColor = '#059669';
+          el.style.color = '#065F46';
+        }
+      }
+    }
+
+    function checkSlowTraceMatch() {
+      const guide = slowStages[currentSlowStage].traceGuide.replace(/\s+/g, '');
+      const input = document.getElementById('slowTraceInput').value.replace(/\s+/g, '');
+      const feedback = document.getElementById('slowMatchFeedback');
+
+      if (!input) {
+        feedback.textContent = '';
+        return;
+      }
+      if (input === guide) {
+        feedback.innerHTML = '<span style="color: #059669;">🌟 완벽해요! 핵심 문장을 아주 정확하게 따라 썼어요! 👏</span>';
+      } else if (guide.startsWith(input)) {
+        feedback.innerHTML = '<span style="color: #4F46E5;">✏️ 참 잘 쓰고 있어요! 끝까지 적어보세요.</span>';
+      } else {
+        feedback.innerHTML = '<span style="color: #D97706;">👀 위 흐린 가이드 글자를 천천히 다시 확인해보세요.</span>';
+      }
+    }
+
+    function selectStamp(stampText) {
+      slowSelectedStamp = stampText;
+      document.querySelectorAll('#slowStampGroup button').forEach(b => {
+        if (b.textContent === stampText) {
+          b.style.background = '#FEF3C7';
+          b.style.borderColor = '#F59E0B';
+          b.style.color = '#92400E';
+        } else {
+          b.style.background = 'white';
+          b.style.borderColor = 'var(--border)';
+          b.style.color = 'inherit';
+        }
+      });
+    }
+
+    function speakCurrentSlowStage() {
+      const stage = slowStages[currentSlowStage];
+      if (stage) speakText(stage.audioPrompt || stage.prompt);
+    }
+
+    function speakSlowTraceGuide() {
+      const stage = slowStages[currentSlowStage];
+      if (stage) speakText(stage.traceGuide);
+    }
+
+    async function saveSlowLearnerData(showToastMsg = true) {
+      const key = getStudentStorageKey();
+      let data = {};
+      try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e){}
+
+      if (!data.slowData) data.slowData = {};
+      const traceVal = document.getElementById('slowTraceInput').value.trim();
+
+      data.slowData[currentSlowStage] = {
+        stageNum: currentSlowStage,
+        lessonRef: slowStages[currentSlowStage].lessonRef,
+        prompt: slowStages[currentSlowStage].prompt,
+        choices: slowSelectedChoices,
+        trace: traceVal,
+        stamp: slowSelectedStamp,
+        savedAt: new Date().toLocaleString()
+      };
+      data.mode = 'slow';
+
+      if (!data.lessons) data.lessons = {};
+      const refNum = parseInt(slowStages[currentSlowStage].lessonRef.replace(/[^0-9]/g, '')) || currentSlowStage;
+      
+      const choiceNames = slowSelectedChoices.map(cid => {
+        const item = slowStages[currentSlowStage].choices.find(x => x.id === cid);
+        return item ? item.text : cid;
+      }).join(', ');
+
+      data.lessons[refNum] = {
+        observation: `[쉬운모드 선택] ${choiceNames || '선택 완료'}`,
+        lifeExample: `[칭찬도장] ${slowSelectedStamp || '도장 없음'}`,
+        thought: `[핵심문장 따라쓰기] ${traceVal || '(미작성)'}`,
+        savedAt: new Date().toLocaleString(),
+        isSlowMode: true
+      };
+
+      localStorage.setItem(key, JSON.stringify(data));
+      await syncToCloud(showToastMsg);
+      if (showToastMsg) {
+        showToast('🌱 선생님께 안전하게 저장되었어요! 참 잘했어요 🌟');
+      }
+    }
+  </script>
+</body>
+</html>
